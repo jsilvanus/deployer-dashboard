@@ -187,7 +187,7 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 
 ## 6. Data flow
 
-- **Targets (multi-deployer)**: list persisted in `localStorage` as `[{ id, label, baseURL, lastSeen, isDefault }]` plus `activeTargetId`. Tokens stored in `sessionStorage` by default (opt-in to `localStorage` with a "remember this target" checkbox). The API client reads the active target's baseURL + token on every request. Switching targets invalidates all TanStack queries and re-pings `GET /health`.
+- **Targets (multi-deployer)**: non-sensitive metadata (`id`, `label`, `baseURL`, `lastSeen`, `isDefault`) plus `activeTargetId` live in `localStorage`, so URLs survive tab close. **Admin tokens live in `sessionStorage` only — never `localStorage`.** Users re-enter the token when the tab is closed. (A future "remember" opt-in is possible once we layer on stronger user auth; explicitly out of scope for this phase.) The API client reads the active target's baseURL from `localStorage` and its token from `sessionStorage` on every request. Switching targets invalidates all TanStack queries and re-pings `GET /health`.
 - **App list**: `useQuery(['apps'])` refetch every 10s.
 - **Per-app status**: `useQuery(['status', id])` refetch every 3s while the row is visible (use `IntersectionObserver`).
 - **Per-app metrics**: `useQuery(['metrics', id])` refetch every 30s (matches server sample rate).
@@ -211,24 +211,21 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 10. **Live deployment progress** — inline on the row while a deploy is in flight (`UPD 4/7` pill counts up in real time).
 11. **Setup menu** — Traefik / self-register / self-update.
 12. **Polish pass** — empty states, error states, loading skeletons, hover interactions (accent offset-shadow nudge).
-13. **README** — how to run, how to enable CORS on the deployer, how to add targets.
+13. **README** — how to run and how to add targets. (CORS is handled deployer-side.)
 
 Variants 1/2/4 are not planned; theme tokens and primitives are reusable if we ever want to add a density toggle later.
 
 ---
 
-## 8. Decisions & remaining assumptions
+## 8. Decisions
 
-**Locked in (from user):**
+All decisions below are locked in from user review:
+
 - **Primary variant = v3 Terminal / dense table.** Mono-forward, dark header, table layout.
 - **Multi-target support = yes.** List of saved deployer targets, switch/add/remove, `⌘K` quick-switcher.
 - **System metrics at the top; per-app metrics only on the right of each row.**
-
-**Still assumed (flag if wrong):**
-- **Token storage.** Default to `sessionStorage`; opt-in to `localStorage` per target via a "remember" checkbox. Tokens never leave the browser.
-- **CORS.** The deployer must allow the dashboard origin. We'll call this out in the README but not ship a proxy.
+- **Storage split:** URLs / labels / target metadata → `localStorage` (survive tab close). Admin tokens → `sessionStorage` only, never `localStorage`. Revisit if/when we add heavier user auth.
+- **CORS.** Handled on the deployer side; no proxy needed in the dashboard.
 - **Start vs. deploy.** The deployer API has `deploy` (first run) and `update` (subsequent). "Start" on a stopped app routes to `update` or `deploy` depending on whether the app has a successful deployment; we'll detect and label the button accordingly.
-- **Self-update.** Gated behind a confirmation, since it can take the deployer offline briefly.
-- **Host metrics source.** We'll parse `/metrics` (Prometheus exposition) for host cpu/mem/disk gauges. If deployer's `/metrics` doesn't expose host-level gauges (only per-app), the system strip falls back to app-aggregated totals + `—` for absent host numbers.
-
-If any of the above should change, flag before implementation step 1.
+- **Self-update.** Gated behind a typed confirmation, since it can take the deployer offline briefly.
+- **Host metrics source.** Parse `/metrics` (Prometheus exposition) for host cpu/mem/disk gauges. If a gauge is absent, the tile falls back to `—`; app-count tiles are always derived from `/apps` + `/status`.
