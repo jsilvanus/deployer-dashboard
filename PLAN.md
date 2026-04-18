@@ -27,35 +27,58 @@ Self-hosted deployment orchestrator. REST API + MCP server. Manages Node (PM2), 
 
 ## 2. Design direction (from the handoff)
 
-The design bundle ships **4 wireframe variants** as exploration. The user's original spec in the chat maps cleanly onto **Variant 1 — "Classic list"**, so that's our primary direction. The distinctive visual DNA is shared across all variants:
+The design bundle ships **4 wireframe variants** as exploration. The user picked **Variant 3 — "Terminal / dense table"** as the primary direction. Monospace-forward, table-like rows, dark header that nods to the CLI roots. Visual DNA we inherit:
 
-- Warm orange accent: `oklch(0.65 0.18 40)`
-- Paper: `#fafaf7` with subtle radial-gradient grain
-- Ink: `#1a1a1a`, secondary `#3a3a3a`/`#7a7a7a`
-- Fonts: Kalam (hand, body) · Caveat (script, display) · JetBrains Mono (meta/mono)
-- Offset shadows (`2px 2px 0 ink`), 1.5px ink borders, 10–14px radii, dashed separators
-- Pills for status: `running` (green) · `updating` (orange) · `failed` (red) · `stopped` (paper-2)
-- Three sparkline tiles per row: status-over-24h, CPU-1h, memory-1h
+- Warm orange accent: `oklch(0.65 0.18 40)` — used as offset-shadow color on dark-header buttons and for "updating" highlights
+- Paper: `#fafaf7` with subtle radial-gradient grain; zebra-striping via `paper-2` on alternate rows
+- Ink: `#1a1a1a` header fill, `#3a3a3a`/`#7a7a7a` secondaries
+- Fonts: JetBrains Mono is dominant (names, meta, chart heads, buttons). Caveat stays for the logo and a few script flourishes. Kalam / hand font is dropped for v3 — everything functional is mono.
+- Offset shadows (`2px 2px 0 var(--accent)` on dark buttons, `1px 1px 0 ink` on row buttons), 1.5px ink borders, 12px radii, dashed `ink-3` row separators
+- Pills shrink to 9–11px uppercase monograms: `RUN` / `UPD 4/7` / `FAIL` / `STOP`
+- Three sparkline tiles per row: status-over-24h, CPU-1h, memory-1h — tight, 1px ink-3 border, 24px svg height
 
 Per the bundle README: recreate the visual output, don't port the prototype's structure.
 
-### Primary layout (from v1)
+### Primary layout (v3 — dense table)
 ```
-┌─ Header ─────────────────────────────────────────────────────┐
-│ [D] deployer · connected  [Deployer selector ▾] [+ add] [⟳]  │
-└──────────────────────────────────────────────────────────────┘
-┌─ App row ────────────────────────────────────────────────────┐
-│ ┌ Card ───────────┐ ┌ 3 metric charts ─────────┐ ┌ ⋯ menu ┐ │
-│ │ name + pill     │ │ status24h │ cpu1h │ mem1h│ │        │ │
-│ │ meta line       │ └──────────────────────────┘ └────────┘ │
-│ │ [stop][upd][log]│                                          │
-│ └─────────────────┘                                          │
-└──────────────────────────────────────────────────────────────┘
-... repeat per app ...
-[＋ register new app]  (dashed placeholder)
+┌─ Header (dark) ──────────────────────────────────────────────────────┐
+│ [$] deployer v0.4.1 · 8 apps · 1 updating   [Target ▾] [+add] [⟳]   │
+└──────────────────────────────────────────────────────────────────────┘
+┌─ System metrics strip ──────────────────────────────────────────────┐
+│ host cpu │ host mem │ host disk │ running │ updating │ failed │ up  │
+│  ▂▃▅▇▆▄   ▁▂▂▃▃▃▄    64% / 1TB   6         1          1        22d │
+└──────────────────────────────────────────────────────────────────────┘
+┌─ Apps table ─────────────────────────────────────────────────────────┐
+│ APP · TYPE              │ STATUS 24H │ CPU 1H    │ MEM 1H   │  ⋯   │
+├──────────────────────────────────────────────────────────────────────┤
+│ api-gateway  RUN        │ ▇▇▇▇▇▇▇▇▇▇ │ ▁▂▃▂▁▂▃▂  │ ▂▂▃▃▃▄  │  ⋯   │
+│ node · pm2 · main@3f9a… │ 99.2%      │ 12%       │ 284 MB   │      │
+│ [stop] [update] [logs]  │            │           │          │      │
+├──────────────────────────────────────────────────────────────────────┤
+│ postgres  RUN           │ ▇▇▇▇▇▇▇▇▇▇ │ ▁▁▂▁▁▁    │ ▂▂▂▂▂▂  │  ⋯   │
+│ ... zebra-striped odd ...                                            │
+└──────────────────────────────────────────────────────────────────────┘
+[＋ register new app]  (dashed placeholder, matching dense style)
 ```
 
+Per-app metrics live **only** on the right of each row (status-24h / CPU-1h / memory-1h). The new **system metrics strip** sits between the header and the apps table — it shows deployer-host-level numbers, not per-app.
+
 The **3-dot menu** opens: edit config · env vars · rollback last deploy · deployment history · run migrations · copy API key · delete.
+
+### System metrics strip (new)
+
+A horizontal bar of small tiles, same sparkline style as per-app tiles, showing **deployer-host-level** numbers. Source: `GET /metrics` (Prometheus exposition — we parse it client-side for host gauges) with a client-computed overlay from the app list.
+
+Tiles (left to right):
+1. **host cpu** — 1h sparkline + current %
+2. **host memory** — 1h sparkline + used/total
+3. **host disk** — free-space % (static number, no sparkline if no series available)
+4. **apps running** — count, green
+5. **apps updating** — count, accent
+6. **apps failed** — count, red
+7. **deployer uptime** — `up 22d`
+
+If the deployer's `/metrics` endpoint doesn't expose a given host gauge, the tile gracefully collapses to `—`. The app-count tiles are always available (derived from `GET /apps` + `/status`). This strip is the only place host-level metrics appear; per-app rows stay focused on their own app.
 
 ---
 
@@ -97,10 +120,15 @@ src/
     Sparkline.tsx
     StatusStrip.tsx           # 24h status-over-time bar
     AreaChart.tsx
+    MetricTile.tsx            # shared tile used by system strip + app rows
   features/
     header/
-      DeployerSelector.tsx    # switch between connected deployers
+      DeployerSelector.tsx    # switch/add/remove targets (multi-target)
       AddDeployerModal.tsx    # URL + token
+      ManageTargetsModal.tsx  # list all targets, rename, delete, set default
+    system/
+      SystemMetricsStrip.tsx  # host cpu/mem/disk + app counts + uptime
+      prometheus.ts           # tiny text-format parser for /metrics
     apps/
       AppList.tsx
       AppRow.tsx              # card + metrics + dots
@@ -129,7 +157,8 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 
 | UI surface | Endpoint(s) |
 |---|---|
-| Deployer selector (add/switch/remove) | `GET /health` for ping-check; connection stored client-side |
+| Target selector (add/switch/remove, multi-target) | `GET /health` for ping-check; each target stored client-side |
+| System metrics strip (host cpu/mem/disk, app counts, uptime) | `GET /metrics` (parsed Prometheus) + `GET /apps` + `GET /apps/:id/status` aggregated client-side |
 | App list (cards + metrics + dots) | `GET /apps`, `GET /apps/:id/status` (polled), `GET /apps/:id/metrics` |
 | Add app modal | `POST /apps` (fields branch by type: node / python / docker / compose) |
 | Card "update" button | `POST /apps/:id/update` → inline progress via `GET /deployments/:id` |
@@ -143,7 +172,7 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 | Menu · copy API key | shown once at registration; "regenerate" via PATCH if supported |
 | Menu · delete | `DELETE /apps/:id` + typed-confirm |
 | Global setup menu | `POST /setup/traefik`, `/setup/self-register`, `/setup/self-update` |
-| Header metric (`GET /metrics`) | link-out only (Prometheus text is not UI-friendly) |
+| Raw Prometheus exposition | "view raw" link in system strip overflow menu |
 
 ### Helpers (the "UI helpers" the user called out)
 - **Type-aware add-app form**: switches fields per app type; pre-fills plausible defaults; validates `allowedDeployPaths` before submit.
@@ -152,15 +181,17 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 - **Bytes / % / uptime formatters**: `284 MB`, `1.2 GB`, `up 4d 12h`, `avg 12% · max 38%`.
 - **Live refresh indicator**: small "⟳ 3s" timer on each metric tile that flips to accent while fetching.
 - **Error toasts with retry**: network or 4xx/5xx from API surfaces as a sketchy pill toast.
+- **Target switcher shortcut**: `⌘K` / `Ctrl+K` to jump between saved deployer targets.
 
 ---
 
 ## 6. Data flow
 
-- **Connections**: persisted in `localStorage` as `{ id, label, baseURL, tokenHash (sessionStorage only for token itself), lastSeen }`. Switching the active connection invalidates all TanStack queries.
+- **Targets (multi-deployer)**: list persisted in `localStorage` as `[{ id, label, baseURL, lastSeen, isDefault }]` plus `activeTargetId`. Tokens stored in `sessionStorage` by default (opt-in to `localStorage` with a "remember this target" checkbox). The API client reads the active target's baseURL + token on every request. Switching targets invalidates all TanStack queries and re-pings `GET /health`.
 - **App list**: `useQuery(['apps'])` refetch every 10s.
 - **Per-app status**: `useQuery(['status', id])` refetch every 3s while the row is visible (use `IntersectionObserver`).
 - **Per-app metrics**: `useQuery(['metrics', id])` refetch every 30s (matches server sample rate).
+- **System metrics strip**: `useQuery(['prometheus'])` refetch every 15s; parse the text payload into `{ cpu, mem, disk, uptime }`. App counts derive reactively from the existing `['apps']` + per-row `['status']` caches — no extra request.
 - **In-flight deployments**: when a mutation returns `202 { deploymentId }`, start polling `GET /deployments/:id` at 1s until terminal state; surface live step in the "updating…" row.
 - **Logs**: historical fetch on drawer open; if user toggles "tail", open `EventSource` on `/logs/stream` and append.
 
@@ -168,29 +199,36 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 
 ## 7. Build / delivery order
 
-1. **Scaffold** Vite+React+TS, Tailwind, theme tokens in `index.css`, font imports.
-2. **UI primitives** — `Button`, `Pill`, `Menu`, `Modal`, `Drawer`, `Card`, `Sparkline`, `StatusStrip`, `AreaChart`. Match wireframe visuals exactly (shadows, dashed borders, font pairings).
-3. **API client + types** — one `api.ts` with methods for every endpoint; typed from CLAUDE.md. Active-deployer + token injected from Zustand.
-4. **Deployer selector + Add deployer modal** — health-check on save.
-5. **App list + AppRow** (read-only first) — `GET /apps` + `GET /status` + `GET /metrics` wired up, with the 3-chart layout.
-6. **Card actions** — update / rollback / logs (drawer).
-7. **3-dot menu** — full set of modals/drawers (edit config, env vars, history, migrations, delete, copy key).
-8. **Add app modal** — type-aware form.
-9. **Live deployment progress** — inline on the row while a deploy is in flight.
-10. **Setup menu** — Traefik / self-register / self-update.
-11. **Polish pass** — empty states, error states, loading skeletons, 4px offset-shadow hover interactions from the wireframe.
-12. **README** — how to run, how to enable CORS on the deployer, how to add a connection.
+1. **Scaffold** Vite+React+TS, Tailwind, theme tokens in `index.css`, font imports (JetBrains Mono primary, Caveat for logo).
+2. **UI primitives** — `Button`, `Pill` (compact monogram variant), `Menu`, `Modal`, `Drawer`, `Sparkline`, `StatusStrip`, `AreaChart`, `MetricTile`. Match v3 visuals exactly (dark header, accent-offset shadows, dashed row separators, zebra stripes).
+3. **API client + types** — one `api.ts` with methods for every endpoint; typed from CLAUDE.md. Active target's baseURL + token injected from Zustand.
+4. **Target manager** — selector in header, add-target modal (URL + token + health-check), manage-targets modal (rename/delete/default), `⌘K` switcher.
+5. **System metrics strip** — `prometheus.ts` parser + `SystemMetricsStrip` component wired to `/metrics`, app counts derived from caches.
+6. **Apps table + AppRow** (read-only first) — `GET /apps` + `GET /status` + `GET /metrics` wired up. Dense table layout, mono everywhere, zebra stripes.
+7. **Card actions** — update / rollback / logs (drawer).
+8. **3-dot menu** — full set of modals/drawers (edit config, env vars, history, migrations, delete, copy key).
+9. **Add app modal** — type-aware form.
+10. **Live deployment progress** — inline on the row while a deploy is in flight (`UPD 4/7` pill counts up in real time).
+11. **Setup menu** — Traefik / self-register / self-update.
+12. **Polish pass** — empty states, error states, loading skeletons, hover interactions (accent offset-shadow nudge).
+13. **README** — how to run, how to enable CORS on the deployer, how to add targets.
 
-Variants 2–4 are left as a follow-up: the theme tokens and primitives are shared, so switching to "metrics-forward" or "terminal" is mostly a layout swap in `AppRow.tsx`. We'll stub a density toggle in the header to make that trivially addable.
+Variants 1/2/4 are not planned; theme tokens and primitives are reusable if we ever want to add a density toggle later.
 
 ---
 
-## 8. Open questions / assumptions
+## 8. Decisions & remaining assumptions
 
-- **Primary variant = v1 Classic list.** The chat transcript and the original user spec describe this layout; v2–v4 are noted as optional follow-ups.
-- **Connection model.** Assuming multiple deployers are worth supporting (the selector implies it). Tokens kept in `sessionStorage` only; users re-enter on new session unless they opt into `localStorage`.
+**Locked in (from user):**
+- **Primary variant = v3 Terminal / dense table.** Mono-forward, dark header, table layout.
+- **Multi-target support = yes.** List of saved deployer targets, switch/add/remove, `⌘K` quick-switcher.
+- **System metrics at the top; per-app metrics only on the right of each row.**
+
+**Still assumed (flag if wrong):**
+- **Token storage.** Default to `sessionStorage`; opt-in to `localStorage` per target via a "remember" checkbox. Tokens never leave the browser.
 - **CORS.** The deployer must allow the dashboard origin. We'll call this out in the README but not ship a proxy.
 - **Start vs. deploy.** The deployer API has `deploy` (first run) and `update` (subsequent). "Start" on a stopped app routes to `update` or `deploy` depending on whether the app has a successful deployment; we'll detect and label the button accordingly.
 - **Self-update.** Gated behind a confirmation, since it can take the deployer offline briefly.
+- **Host metrics source.** We'll parse `/metrics` (Prometheus exposition) for host cpu/mem/disk gauges. If deployer's `/metrics` doesn't expose host-level gauges (only per-app), the system strip falls back to app-aggregated totals + `—` for absent host numbers.
 
-If any of these should change, flag before implementation step 1.
+If any of the above should change, flag before implementation step 1.
