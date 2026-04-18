@@ -21,6 +21,7 @@ Self-hosted deployment orchestrator. REST API + MCP server. Manages Node (PM2), 
 | Metrics | `GET /apps/:id/metrics` (30s samples, 7d retention) |
 | Env | `GET /apps/:id/env`, `PUT /apps/:id/env`, `DELETE /apps/:id/env` |
 | Setup | `POST /setup/traefik`, `/setup/self-register`, `/setup/self-update` |
+| Server config | `GET /config/env`, `PUT /config/env` |
 | Prometheus | `GET /metrics` (non-UI, just a link) |
 
 ---
@@ -146,6 +147,7 @@ src/
     setup/
       TraefikSetupModal.tsx
       SelfUpdateModal.tsx
+      ServerEnvDrawer.tsx     # GET/PUT /config/env — deployer's own server env vars
 index.html
 ```
 
@@ -172,6 +174,7 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 | Menu · copy API key | shown once at registration; "regenerate" via PATCH if supported |
 | Menu · delete | `DELETE /apps/:id` + typed-confirm |
 | Global setup menu | `POST /setup/traefik`, `/setup/self-register`, `/setup/self-update` |
+| Deployer server env editor | `GET /config/env`, `PUT /config/env` (+ `POST /setup/self-update` for restart) |
 | Raw Prometheus exposition | "view raw" link in system strip overflow menu |
 
 ### Helpers (the "UI helpers" the user called out)
@@ -217,7 +220,58 @@ Variants 1/2/4 are not planned; theme tokens and primitives are reusable if we e
 
 ---
 
-## 8. Decisions
+## 8. Deployer program configuration
+
+The dashboard is a zero-backend SPA. Because it is itself a deployed app (publicly accessible), users need a UI path inside the dashboard to view and edit the deployer server's own env vars — not instructions to SSH in and edit a `.env` file.
+
+### 8a. Dashboard build-time env vars (Vite)
+
+All dashboard env vars use the `VITE_` prefix so Vite inlines them at build time. None are required — the add-target modal accepts them at runtime instead. Optional defaults:
+
+| Variable | Purpose | Example |
+|---|---|---|
+| `VITE_DEFAULT_DEPLOYER_URL` | Pre-fills the URL field in AddDeployerModal | `https://deploy.example.com` |
+
+Create a `.env.local` (git-ignored) for local dev overrides; commit `.env.example` with every variable listed but no values.
+
+### 8b. Deployer server env vars — UI editor
+
+The deployer exposes its own server-level env vars at `GET /config/env` and `PUT /config/env`. The dashboard opens a dedicated **`ServerEnvDrawer`** for editing them.
+
+**Entry point:** the target selector in the header gains a **"Server config"** item in its per-target dropdown (next to rename / delete). Clicking it opens the drawer for the active target.
+
+**`features/setup/ServerEnvDrawer.tsx`** — same key/value editor pattern as `EnvVarsDrawer` for apps, with these differences:
+
+- Known vars (`PORT`, `ADMIN_TOKEN`, `DATABASE_PATH`, `ENCRYPTION_KEY`, `CORS_ORIGIN`, `LOG_LEVEL`) are listed first with inline descriptions so users know what each does.
+- Values are masked by default; click to reveal (same as app env vars).
+- `ADMIN_TOKEN` and `ENCRYPTION_KEY` cells have a **⟳ generate** button that produces a cryptographically random value in-browser.
+- Saving any change fires `PUT /config/env` and shows a yellow "Restart required" banner — some vars (e.g. `PORT`, `ENCRYPTION_KEY`) only take effect after the deployer restarts.
+- A **"Restart now"** button in the banner triggers `POST /setup/self-update` (which restarts the process) behind the same typed confirmation used for self-update.
+- Unknown / custom vars beyond the known set are shown in a collapsible "Custom" section below, editable freely.
+
+**API endpoints used:**
+
+| Action | Endpoint |
+|---|---|
+| Load current values | `GET /config/env` |
+| Save changes | `PUT /config/env` |
+| Restart after change | `POST /setup/self-update` |
+
+### 8c. Connecting the dashboard to a deployer instance
+
+The Add Deployer flow (step 4 in build order) walks through this end-to-end:
+
+1. User opens **Add target** modal (`AddDeployerModal.tsx`).
+2. Enters the deployer base URL.
+3. Enters the `ADMIN_TOKEN` — stored in `sessionStorage` only (see §6 storage split).
+4. Dashboard fires `GET /health`; shows a green "Connected" pill on success or an inline error with CORS troubleshooting hint on failure.
+5. Target is saved to `localStorage` (URL + label only; token stays in `sessionStorage`).
+
+Per-app env vars (each app's own environment) are managed separately via `EnvVarsDrawer.tsx` → `GET/PUT/DELETE /apps/:id/env`. `ServerEnvDrawer` is only for the deployer process itself.
+
+---
+
+## 9. Decisions
 
 All decisions below are locked in from user review:
 
