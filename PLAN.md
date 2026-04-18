@@ -187,7 +187,7 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 
 ## 6. Data flow
 
-- **Targets (multi-deployer)**: list persisted in `localStorage` as `[{ id, label, baseURL, lastSeen, isDefault }]` plus `activeTargetId`. Tokens stored in `sessionStorage` by default (opt-in to `localStorage` with a "remember this target" checkbox). The API client reads the active target's baseURL + token on every request. Switching targets invalidates all TanStack queries and re-pings `GET /health`.
+- **Targets (multi-deployer)**: list persisted in `localStorage` as `[{ id, label, baseURL, lastSeen, isDefault }]` plus `activeTargetId`. **Admin tokens live in `sessionStorage` only — never `localStorage`.** Users re-enter the token when the tab is closed. (A future "remember" opt-in is possible once we layer on stronger user auth; explicitly out of scope for this phase.) The API client reads the active target's baseURL + token on every request. Switching targets invalidates all TanStack queries and re-pings `GET /health`.
 - **App list**: `useQuery(['apps'])` refetch every 10s.
 - **Per-app status**: `useQuery(['status', id])` refetch every 3s while the row is visible (use `IntersectionObserver`).
 - **Per-app metrics**: `useQuery(['metrics', id])` refetch every 30s (matches server sample rate).
@@ -223,9 +223,9 @@ Variants 1/2/4 are not planned; theme tokens and primitives are reusable if we e
 - **Primary variant = v3 Terminal / dense table.** Mono-forward, dark header, table layout.
 - **Multi-target support = yes.** List of saved deployer targets, switch/add/remove, `⌘K` quick-switcher.
 - **System metrics at the top; per-app metrics only on the right of each row.**
+- **Token storage = `sessionStorage` only.** Admin API keys never touch `localStorage` in this phase. Revisit if/when we add heavier user auth.
 
 **Still assumed (flag if wrong):**
-- **Token storage.** Default to `sessionStorage`; opt-in to `localStorage` per target via a "remember" checkbox. Tokens never leave the browser.
 - **CORS.** The deployer must allow the dashboard origin. We'll call this out in the README but not ship a proxy.
 - **Start vs. deploy.** The deployer API has `deploy` (first run) and `update` (subsequent). "Start" on a stopped app routes to `update` or `deploy` depending on whether the app has a successful deployment; we'll detect and label the button accordingly.
 - **Self-update.** Gated behind a confirmation, since it can take the deployer offline briefly.
