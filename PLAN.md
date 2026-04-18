@@ -211,24 +211,21 @@ Everything the API exposes gets a UI. Nothing is behind "coming soon".
 10. **Live deployment progress** — inline on the row while a deploy is in flight (`UPD 4/7` pill counts up in real time).
 11. **Setup menu** — Traefik / self-register / self-update.
 12. **Polish pass** — empty states, error states, loading skeletons, hover interactions (accent offset-shadow nudge).
-13. **README** — how to run, how to enable CORS on the deployer, how to add targets.
+13. **README** — how to run and how to add targets. (CORS is handled deployer-side.)
 
 Variants 1/2/4 are not planned; theme tokens and primitives are reusable if we ever want to add a density toggle later.
 
 ---
 
-## 8. Decisions & remaining assumptions
+## 8. Decisions
 
-**Locked in (from user):**
+All decisions below are locked in from user review:
+
 - **Primary variant = v3 Terminal / dense table.** Mono-forward, dark header, table layout.
 - **Multi-target support = yes.** List of saved deployer targets, switch/add/remove, `⌘K` quick-switcher.
 - **System metrics at the top; per-app metrics only on the right of each row.**
 - **Token storage = `sessionStorage` only.** Admin API keys never touch `localStorage` in this phase. Revisit if/when we add heavier user auth.
-
-**Still assumed (flag if wrong):**
-- **CORS.** The deployer must allow the dashboard origin. We'll call this out in the README but not ship a proxy.
+- **CORS.** Handled on the deployer side; no proxy needed in the dashboard.
 - **Start vs. deploy.** The deployer API has `deploy` (first run) and `update` (subsequent). "Start" on a stopped app routes to `update` or `deploy` depending on whether the app has a successful deployment; we'll detect and label the button accordingly.
-- **Self-update.** Gated behind a confirmation, since it can take the deployer offline briefly.
-- **Host metrics source.** We'll parse `/metrics` (Prometheus exposition) for host cpu/mem/disk gauges. If deployer's `/metrics` doesn't expose host-level gauges (only per-app), the system strip falls back to app-aggregated totals + `—` for absent host numbers.
-
-If any of the above should change, flag before implementation step 1.
+- **Self-update.** Gated behind a typed confirmation, since it can take the deployer offline briefly.
+- **Host metrics source.** Parse `/metrics` (Prometheus exposition) for host cpu/mem/disk gauges. If a gauge is absent, the tile falls back to `—`; app-count tiles are always derived from `/apps` + `/status`.
