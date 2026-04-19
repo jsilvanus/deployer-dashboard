@@ -74,11 +74,11 @@ Run these simultaneously (max 3):
 **Goal:** Provide a UI to view current app version and latest upstream version and to trigger updates.
 
 ### Sequential steps
-1. Implement `AppVersionsModal` to call `getAppVersions(appId)` (or `/apps/:id/version`) and display: current version, latest upstream, changelog/notes if provided.
-2. Add an "Update to latest" / "Pin version" action that calls existing update/deploy endpoints (e.g., POST `/apps/:id/update` or `/apps/:id/deploy` with parameters). — must be guarded with confirmation.
-3. Integrate the modal into `AppMenu` and optionally wire a route `/apps/:appId/version` by updating history (optional, prefer modal first).
+1. Implement `AppVersionsModal` to call `getAppVersions(appId)` (or `/apps/:id/version`) and display: current version, latest upstream, changelog/notes if provided. — [x]
+2. Add an "Update to latest" / "Pin version" action that calls existing update/deploy endpoints (e.g., POST `/apps/:id/update` or `/apps/:id/deploy` with parameters). — must be guarded with confirmation. — [x]
+3. Integrate the modal into `AppMenu` and optionally wire a route `/apps/:appId/version` by updating history (optional, prefer modal first). — [x]
 
-**Sync point:** User can view upstream versions and trigger an update; actions show progress using existing `DeploymentProgressInline`.
+**Sync point:** User can view upstream versions and trigger an update; modal lists versions and triggers `postUpdate`. Integration with `DeploymentProgressInline` relies on the existing deployment flow.
 
 ---
 

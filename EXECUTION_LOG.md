@@ -28,6 +28,17 @@ Sync point verified: `getApp()` and `getApps()` include new optional fields (`re
 Deviations: none.
 
 ---
+## 2026-04-20 — Phase 3 closed ✅ 🔒
+
+Owned files:
+- src/features/apps/AppVersionsModal.tsx
+- src/features/apps/AppMenu.tsx
+
+Sync point verified: `AppVersionsModal` lists upstream and history versions via `getAppVersions`; "Update to latest" action calls `postUpdate` and is guarded with confirmation. The modal is integrated into `AppMenu`.
+
+Deviations: progress visualization via `DeploymentProgressInline` uses existing deployment flows and will surface when a deployment is created by the update action.
+
+---
 ## 2026-04-20 — Phase 2 closed ✅ 🔒
 
 Owned files:
