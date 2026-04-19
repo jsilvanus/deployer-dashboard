@@ -28,6 +28,17 @@ Sync point verified: `getApp()` and `getApps()` include new optional fields (`re
 Deviations: none.
 
 ---
+## 2026-04-20 — Phase 5 closed ✅ 🔒
+
+Owned files:
+- src/features/apps/SchedulerModal.tsx
+- src/features/apps/AppMenu.tsx
+
+Sync point verified: `SchedulerModal` shows existing schedule and next run; saving calls `postAppSchedule`. `AppMenu` exposes an immediate "Shutdown now" action that calls `postAppShutdown` with confirmation. Safety checks and next-run display implemented.
+
+Deviations: none.
+
+---
 ## 2026-04-20 — Phase 4 closed ✅ 🔒
 
 Owned files:

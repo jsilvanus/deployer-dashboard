@@ -8,6 +8,7 @@ export default function SchedulerModal({ appId, open, onClose }: { appId: string
   const [cron, setCron] = useState('')
   const [timezone, setTimezone] = useState('UTC')
   const [enabled, setEnabled] = useState(false)
+  const [nextRun, setNextRun] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -19,6 +20,7 @@ export default function SchedulerModal({ appId, open, onClose }: { appId: string
       setCron(s.cron || '')
       setTimezone(s.timezone || 'UTC')
       setEnabled(!!s.enabled)
+      setNextRun(s.nextRun || null)
     }).catch(() => {
       // ignore
     }).finally(() => { if (mounted) setLoading(false) })
@@ -64,6 +66,7 @@ export default function SchedulerModal({ appId, open, onClose }: { appId: string
             <div className="text-sm">Enabled</div>
           </div>
           <div className="mt-2 text-sm text-[color:var(--muted)]">Tip: provide a cron expression or use the API to validate complex schedules.</div>
+          {nextRun && <div className="mt-1 text-sm">Next run: <span className="font-mono">{nextRun}</span></div>}
         </div>
       )}
 

@@ -9,6 +9,8 @@ import SchedulerModal from './SchedulerModal'
 import AppRegistryModal from './AppRegistryModal'
 import { copyToClipboard } from '../../lib/clipboard'
 import Button from '../../components/ui/Button'
+import { postAppShutdown } from '../../lib/api'
+import { showToast } from '../../lib/toast'
 
 export default function AppMenu({ app }: { app: any }) {
   const [open, setOpen] = useState(false)
@@ -51,6 +53,7 @@ export default function AppMenu({ app }: { app: any }) {
             <button className="text-left px-3 py-2 hover:bg-gray-50" onClick={()=>{ setSchedulerOpen(true); setOpen(false) }}>Scheduler</button>
             <button className="text-left px-3 py-2 hover:bg-gray-50" onClick={()=>{ setRegistryOpen(true); setOpen(false) }}>Registry</button>
             <button className="text-left px-3 py-2 hover:bg-gray-50" onClick={()=>{ /* TODO: cache/invalidate action */ setOpen(false) }}>Cache</button>
+            <button className="text-left px-3 py-2 hover:bg-gray-50" onClick={async ()=>{ if (!confirm('Shutdown app now?')) return; try { await postAppShutdown(app.id); showToast('Shutdown request sent'); } catch (e) { showToast('Shutdown failed') } setOpen(false) }}>Shutdown now</button>
             <button className="text-left px-3 py-2 hover:bg-gray-50" onClick={()=>{ setEditOpen(true); setOpen(false) }}>Edit config</button>
             <button className="text-left px-3 py-2 hover:bg-gray-50" onClick={()=>{ setEnvOpen(true); setOpen(false) }}>Env vars</button>
             <button className="text-left px-3 py-2 hover:bg-gray-50" onClick={()=>{ setHistOpen(true); setOpen(false) }}>Deployment history</button>

@@ -105,9 +105,9 @@ Run these simultaneously (max 3):
 **Goal:** Allow users to schedule self-shutdown/restarts and ad-hoc shutdowns from the UI.
 
 ### Sequential steps
-1. Implement `SchedulerModal` to show existing schedule, allow cron-like configuration, timezone selection, and enable/disable toggles.
-2. Add immediate "Shutdown now" / "Restart now" actions in `AppMenu` or `EditConfigModal` that call `postAppShutdown(appId)` (or a dedicated endpoint).
-3. Provide safety checks: confirmation, description of effects, and display next scheduled run.
+- [x] Implement `SchedulerModal` to show existing schedule, allow cron-like configuration, timezone selection, and enable/disable toggles.
+- [x] Add immediate "Shutdown now" / "Restart now" actions in `AppMenu` or `EditConfigModal` that call `postAppShutdown(appId)` (or a dedicated endpoint).
+- [x] Provide safety checks: confirmation, description of effects, and display next scheduled run.
 
 **Sync point:** Schedules are persisted and the UI shows next run; immediate shutdown calls return expected responses.
 
