@@ -28,3 +28,17 @@ Sync point verified: `getApp()` and `getApps()` include new optional fields (`re
 Deviations: none.
 
 ---
+
+## 2026-04-20 — Phase 2, Stream C closed ✅
+
+Owned files:
+- src/features/apps/AppMenu.tsx
+- src/features/apps/AppVersionsModal.tsx
+- src/features/apps/SchedulerModal.tsx
+- src/features/apps/AppRegistryModal.tsx
+
+Checkpoint: `AppMenu` now exposes `Versions`, `Scheduler`, `Cache`, and `Registry` actions; `AppVersionsModal`, `SchedulerModal`, and `AppRegistryModal` scaffold components created and wired. Dev-mode API fallbacks will allow local development without a running backend.
+
+Deviations: none.
+
+---

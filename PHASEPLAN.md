@@ -58,6 +58,9 @@ Run these simultaneously (max 3):
 **Stream C — AppMenu integration & new modals**
 - Add new actions to `AppMenu`: `Versions` (open versions modal), `Scheduler` (open scheduling modal), `Cache` (view/invalidate), `Registry` (open registry modal).
 - Implement `AppVersionsModal` and `SchedulerModal` components (drawer/modals following existing patterns in `EnvVarsDrawer` and modals).
+**Stream C — AppMenu integration & new modals** ✅
+- [x] Add new actions to `AppMenu`: `Versions` (open versions modal), `Scheduler` (open scheduling modal), `Cache` (view/invalidate), `Registry` (open registry modal).
+- [x] Implement `AppVersionsModal`, `SchedulerModal`, and `AppRegistryModal` components (scaffolded and wired from `AppMenu`).
 
 **Files to edit/create:** [src/features/apps/AddAppModal.tsx](src/features/apps/AddAppModal.tsx), [src/features/apps/EditConfigModal.tsx](src/features/apps/EditConfigModal.tsx), [src/features/apps/AppMenu.tsx](src/features/apps/AppMenu.tsx), new components under `src/features/apps/` (e.g., `AppVersionsModal.tsx`, `SchedulerModal.tsx`, `AppRegistryModal.tsx`).
 
