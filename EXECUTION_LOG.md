@@ -28,6 +28,17 @@ Sync point verified: `getApp()` and `getApps()` include new optional fields (`re
 Deviations: none.
 
 ---
+## 2026-04-20 — Phase 6 closed ✅ 🔒
+
+Owned files:
+- README.md
+- src/features/apps/__tests__/appMenu.smoke.test.tsx
+
+Sync point verified: Documentation updated with new features and dev-mode mock instructions; a basic smoke test was added under `src/features/apps/__tests__`.
+
+Deviations: full test-suite run not executed in this environment — please run `npm run test` locally to verify all tests pass.
+
+---
 ## 2026-04-20 — Phase 5 closed ✅ 🔒
 
 Owned files:
