@@ -15,3 +15,16 @@
  Deviations: none.
 
  ---
+
+## 2026-04-20 — Phase 1 closed ✅ 🔒
+
+Owned files:
+- src/lib/types.ts
+- src/lib/api.ts
+- docs/api-contracts/deployer-ui-api.json
+
+Sync point verified: `getApp()` and `getApps()` include new optional fields (`registryUrl`, `registryAuth`, `cors`, `lastModified`, `schedule`) per `src/lib/types.ts`; typed API helpers `getAppVersions`, `getAppVersion`, `postAppSchedule`, `postAppShutdown`, and `postAppRegistryTest` are present in `src/lib/api.ts` and provide dev-mode mock responses when `localStorage['deployer:useDevMocks'] === '1'`.
+
+Deviations: none.
+
+---

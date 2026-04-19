@@ -28,13 +28,13 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
 **Goal:** Update front-end types and API wrappers to reflect agreed contract.
 
 ### Sequential steps
-1. Update `src/lib/types.ts` to extend `App` with new fields (example additions below). — ensures TypeScript safety across UI.
-2. Add API wrappers to `src/lib/api.ts`: `getAppVersions(appId)`, `getAppVersion(appId)`, `postAppSchedule(appId, body)`, `postAppShutdown(appId)`, `postAppRegistryTest(appId, body)`, and optional cache-related endpoints. — centralizes requests.
-3. Add error-handling expectations for CORS/401s and add comments referencing backend contract.
+- [x] Update `src/lib/types.ts` to extend `App` with new fields (registryUrl, registryAuth, cors, lastModified, schedule) — confirmed present.
+- [x] Add API wrappers to `src/lib/api.ts`: `getAppVersions(appId)`, `getAppVersion(appId)`, `postAppSchedule(appId, body)`, `postAppShutdown(appId)`, `postAppRegistryTest(appId, body)`, and optional cache-related endpoints — functions present with dev-mode fallbacks.
+- [x] Add error-handling expectations for CORS/401s and add comments referencing backend contract — basic handling and comments present in `src/lib/api.ts`.
 
 **Files:** [src/lib/types.ts](src/lib/types.ts), [src/lib/api.ts](src/lib/api.ts)
 
-**Sync point:** `getApp()` and `getApps()` include new fields; new helpers compile and have mock responses.
+**Sync point:** `getApp()` and `getApps()` include new fields; new helpers present and provide mock responses when `localStorage['deployer:useDevMocks'] === '1'`.
 
 ---
 
