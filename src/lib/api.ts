@@ -1,41 +1,3 @@
-import axios from 'axios'
-
-const client = axios.create({
-  headers: { 'Content-Type': 'application/json' }
-})
-
-export async function postDeploy(appId: string) {
-  const res = await client.post(`/apps/${appId}/deploy`)
-  return res.data
-}
-
-export async function postUpdate(appId: string) {
-  const res = await client.post(`/apps/${appId}/update`)
-  return res.data
-}
-
-export async function postRollback(appId: string) {
-  const res = await client.post(`/apps/${appId}/rollback`)
-  return res.data
-}
-
-export async function getDeployment(deploymentId: string) {
-  const res = await client.get(`/deployments/${deploymentId}`)
-  return res.data
-}
-
-export async function getAppLogs(appId: string) {
-  const res = await client.get(`/apps/${appId}/logs`)
-  return res.data
-}
-
-// streamAppLogs returns an EventSource instance pointed at the server SSE endpoint.
-// Caller should attach event handlers: onmessage, onerror, etc.
-export function streamAppLogs(appId: string) {
-  const url = `/apps/${appId}/logs/stream`
-  const es = new EventSource(url)
-  return es
-}
 export async function apiGet(baseURL: string, path: string, token?: string) {
   const url = new URL(path, baseURL).toString()
   const headers: Record<string, string> = {}
@@ -142,6 +104,19 @@ export async function postApp(body: Partial<App>, signal?: AbortSignal): Promise
 export async function postAppDeploy(id: string, action: string, signal?: AbortSignal): Promise<{ deploymentId: string }>
 {
   return request(`/apps/${encodeURIComponent(id)}/deploy`, { method: 'POST', body: { action } }, signal)
+}
+
+// compatibility wrappers for older code that used postDeploy/postUpdate/postRollback
+export async function postDeploy(id: string, signal?: AbortSignal) {
+  return request(`/apps/${encodeURIComponent(id)}/deploy`, { method: 'POST' }, signal)
+}
+
+export async function postUpdate(id: string, signal?: AbortSignal) {
+  return request(`/apps/${encodeURIComponent(id)}/update`, { method: 'POST' }, signal)
+}
+
+export async function postRollback(id: string, signal?: AbortSignal) {
+  return request(`/apps/${encodeURIComponent(id)}/rollback`, { method: 'POST' }, signal)
 }
 
 export async function getAppStatus(id: string, signal?: AbortSignal) {

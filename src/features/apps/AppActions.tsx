@@ -1,67 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import * as api from '../../lib/api'
-
-type Progress = { current: number; total: number } | null
-
-function DeploymentProgressInline({ progress }: { progress: Progress }) {
-  if (!progress) return null
-  const { current, total } = progress
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 text-xs rounded-full bg-[color:var(--accent)] text-white font-semibold">
-      UPD {current}/{total}
-    </span>
-  )
-}
-
-// useDeploymentPoll - polls deployment until finished, exposes progress
-function useDeploymentPoll() {
-  const [progress, setProgress] = useState<Progress>(null)
-  const intervalRef = useRef<number | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) window.clearInterval(intervalRef.current)
-    }
-  }, [])
-
-  function start(deploymentId: string) {
-    // initial fetch
-    let stopped = false
-    async function tick() {
-      try {
-        const d: any = await api.getDeployment(deploymentId)
-        if (d && d.progress) {
-          setProgress({ current: d.progress.current ?? 0, total: d.progress.total ?? 0 })
-        }
-        if (d && (d.status === 'succeeded' || d.status === 'failed' || d.status === 'cancelled')) {
-          // stop polling
-          if (intervalRef.current) {
-            window.clearInterval(intervalRef.current)
-            intervalRef.current = null
-          }
-          stopped = true
-        }
-      } catch (err) {
-        // ignore transient errors
-      }
-    }
-
-    tick()
-    if (!stopped) {
-      intervalRef.current = window.setInterval(tick, 1000)
-    }
-  }
-
-  function stop() {
-    if (intervalRef.current) {
-      window.clearInterval(intervalRef.current)
-      intervalRef.current = null
-    }
-  }
-
-  return { progress, start, stop }
-}
+import DeploymentProgressInline, { useDeploymentPoll } from './DeploymentProgressInline'
 
 // lightweight retry toast using window.confirm for now
 function showErrorWithRetry(message: string, onRetry: () => void) {

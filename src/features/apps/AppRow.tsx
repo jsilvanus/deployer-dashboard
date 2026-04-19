@@ -4,6 +4,7 @@ import useQuery from '../../lib/useQuery'
 import { getAppStatus, getAppMetrics } from '../../lib/api'
 import type { App } from '../../lib/types'
 import AppMenu from './AppMenu'
+import { useAppActions } from './AppActions'
 
 function useIsVisible<T extends HTMLElement>() {
   const ref = useRef<T | null>(null)
@@ -22,6 +23,8 @@ function useIsVisible<T extends HTMLElement>() {
 
 export default function AppRow({ app }: { app: App }) {
   const { ref, visible } = useIsVisible<HTMLDivElement>()
+
+  const actions = useAppActions(app.id)
 
   const statusQ = useQuery(['status', app.id], () => getAppStatus(app.id), { enabled: visible, refetchInterval: visible ? 3000 : false })
   const metricsQ = useQuery(['metrics', app.id], () => getAppMetrics(app.id), { enabled: visible })
@@ -65,7 +68,8 @@ export default function AppRow({ app }: { app: App }) {
         </div>
       </div>
 
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-3">
+        <actions.DeploymentProgressInline />
         <AppMenu app={app} />
       </div>
     </div>
