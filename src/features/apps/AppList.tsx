@@ -1,11 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import useQuery from '../../lib/useQuery'
 import { getApps } from '../../lib/api'
 import AppRow from './AppRow'
+import AddAppModal from './AddAppModal'
+import Skeleton from '../../components/ui/Skeleton'
 
 export default function AppList() {
   const q = useQuery(['apps'], () => getApps())
   const apps = q.data ?? []
+
+  const [showAdd, setShowAdd] = useState(false)
 
   return (
     <div className="rounded-md overflow-hidden border">
@@ -19,20 +23,21 @@ export default function AppList() {
       <div role="table" aria-label="apps table">
         {q.isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className={`flex items-center gap-4 px-4 py-3 border-b border-dashed animate-pulse ${i % 2 ? 'bg-gray-50' : 'bg-white'}`}>
-              <div className="w-56 h-4 bg-gray-200 rounded" />
-              <div className="w-28 h-4 bg-gray-200 rounded" />
+            <div key={i} className={`flex items-center gap-4 px-4 py-3 border-b border-dashed ${i % 2 ? 'bg-gray-50' : 'bg-white'}`}>
+              <div className="w-56"><Skeleton className="h-4" /></div>
+              <div className="w-28"><Skeleton className="h-4" /></div>
               <div className="flex gap-3">
-                <div className="w-40 h-10 bg-gray-200 rounded" />
-                <div className="w-40 h-10 bg-gray-200 rounded" />
-                <div className="w-40 h-10 bg-gray-200 rounded" />
+                <Skeleton className="w-40 h-10" />
+                <Skeleton className="w-40 h-10" />
+                <Skeleton className="w-40 h-10" />
               </div>
-              <div className="ml-auto w-8 h-8 bg-gray-200 rounded" />
+              <div className="ml-auto w-8 h-8"><Skeleton className="h-8 w-8 rounded-full" /></div>
             </div>
           ))
         ) : apps.length === 0 ? (
           <div className="p-8 text-center text-sm text-[color:var(--muted)]">
-            No apps registered. <button className="ml-2 px-3 py-1 bg-indigo-600 text-white rounded">+ register new app</button>
+            No apps registered.
+            <button aria-label="Register new app" onClick={()=>setShowAdd(true)} className="ml-2 px-3 py-1 bg-indigo-600 text-white rounded">+ register new app</button>
           </div>
         ) : (
           apps.map((a: any, idx: number) => (
@@ -42,6 +47,8 @@ export default function AppList() {
           ))
         )}
       </div>
+
+      <AddAppModal open={showAdd} onClose={()=>setShowAdd(false)} />
     </div>
   )
 }

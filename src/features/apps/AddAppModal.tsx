@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import Modal from '../../components/ui/Modal'
+import { showToast } from '../../lib/toast'
 
 type Props = { open: boolean; onClose: () => void }
 
@@ -20,18 +21,6 @@ function localToken(): string | null {
   try { return sessionStorage.getItem('deployer:token') } catch { return null }
 }
 
-function showToast(msg: string) {
-  try {
-    const root = document.createElement('div')
-    root.className = 'fixed bottom-6 right-6 bg-black text-white text-sm px-4 py-2 rounded shadow'
-    root.style.opacity = '0'
-    root.style.transition = 'opacity 180ms ease-in-out'
-    root.textContent = msg
-    document.body.appendChild(root)
-    requestAnimationFrame(() => { root.style.opacity = '1' })
-    setTimeout(() => { root.style.opacity = '0'; setTimeout(() => root.remove(), 200) }, 1800)
-  } catch (e) { /* noop */ }
-}
 
 export default function AddAppModal({ open, onClose }: Props) {
   const [name, setName] = useState('')

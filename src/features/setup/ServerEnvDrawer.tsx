@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Button from '../../components/ui/Button'
-import axios from 'axios'
 
 const KNOWN_VARS: { key: string; desc: string; sensitive?: boolean }[] = [
   { key: 'PORT', desc: 'Port the server listens on' },
@@ -26,7 +25,11 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   useEffect(() => {
     if (!open) return
     setLoading(true)
-    axios.get('/config/env').then(res => setEnv(res.data || {})).catch(() => setEnv({})).finally(() => setLoading(false))
+    fetch('/config/env').then(async r => {
+      if (!r.ok) return setEnv({})
+      const data = await r.json().catch(()=> ({}))
+      setEnv(data || {})
+    }).catch(()=> setEnv({})).finally(()=> setLoading(false))
   }, [open])
 
   function setVar(k: string, v: string) {
@@ -40,8 +43,10 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   async function handleSave() {
     setSaving(true)
     try {
-      const res = await axios.put('/config/env', env)
-      setRestartRequired(!!res?.data?.restartRequired)
+      const res = await fetch('/config/env', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(env) })
+      if (!res.ok) return
+      const data = await res.json().catch(()=>null)
+      setRestartRequired(!!(data && data.restartRequired))
     } catch (err) {
       console.error(err)
     } finally {
@@ -51,7 +56,7 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
 
   async function handleRestartNow() {
     try {
-      await axios.post('/setup/self-update')
+      await fetch('/setup/self-update', { method: 'POST' })
       setRestartRequired(false)
       onRestartRequested?.()
     } catch (err) {

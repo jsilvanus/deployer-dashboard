@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import Button from '../../components/ui/Button'
-import axios from 'axios'
 
 export default function TraefikSetupModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [domain, setDomain] = useState('')
@@ -17,11 +16,16 @@ export default function TraefikSetupModal({ open, onClose }: { open: boolean; on
     setMessage(null)
     try {
       const payload = { domain, email, entrypoint }
-      await axios.post('/setup/traefik', payload)
-      setMessage('Traefik configuration submitted successfully')
-      setTimeout(() => onClose(), 900)
+      const resp = await fetch('/setup/traefik', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      if (!resp.ok) {
+        const txt = await resp.text()
+        setMessage(txt || `Request failed: ${resp.status}`)
+      } else {
+        setMessage('Traefik configuration submitted successfully')
+        setTimeout(() => onClose(), 900)
+      }
     } catch (err: any) {
-      setMessage(err?.response?.data?.message || String(err))
+      setMessage(String(err))
     } finally {
       setLoading(false)
     }

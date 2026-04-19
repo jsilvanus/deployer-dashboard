@@ -31,10 +31,11 @@ export default function Button({
   return (
     <button
       className={[
-        'inline-flex items-center justify-center rounded-md font-medium transition-shadow focus:outline-none',
+        'inline-flex items-center justify-center rounded-md font-medium transition-transform transition-shadow duration-150 ease-out focus:outline-none',
         variantCls,
         sizeCls,
         accentOffset,
+        'hover:-translate-y-1 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]/30',
         className
       ].filter(Boolean).join(' ')}
       {...rest}

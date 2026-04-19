@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Button from '../../components/ui/Button'
-import axios from 'axios'
 
 export default function SelfUpdateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [confirmText, setConfirmText] = useState('')
@@ -23,16 +22,22 @@ export default function SelfUpdateModal({ open, onClose }: { open: boolean; onCl
     setMessage(null)
     try {
       setProgress(4)
-      const res = await axios.post('/setup/self-update')
+      const resp = await fetch('/setup/self-update', { method: 'POST' })
       setProgress(100)
-      setMessage(res?.data?.message || 'Update completed')
-      setTimeout(() => {
-        setRunning(false)
-        onClose()
-      }, 900)
+      if (!resp.ok) {
+        const txt = await resp.text()
+        setMessage(txt || `Request failed: ${resp.status}`)
+      } else {
+        const data = await resp.json().catch(()=>null)
+        setMessage((data && data.message) || 'Update completed')
+        setTimeout(() => {
+          setRunning(false)
+          onClose()
+        }, 900)
+      }
     } catch (err: any) {
       setRunning(false)
-      setMessage(err?.response?.data?.message || String(err))
+      setMessage(String(err))
     }
   }
 

@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import * as api from '../../lib/api'
 import DeploymentProgressInline, { useDeploymentPoll } from './DeploymentProgressInline'
+import { showToast } from '../../lib/toast'
 
-// lightweight retry toast using window.confirm for now
 function showErrorWithRetry(message: string, onRetry: () => void) {
-  const tryAgain = window.confirm(`${message}\nRetry?`)
-  if (tryAgain) onRetry()
+  showToast(message, { actionLabel: 'Retry', onAction: onRetry, duration: 6000 })
 }
 
 export function useAppActions(appId: string) {
