@@ -8,17 +8,17 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
 
 ---
 
-## Phase 0: Discovery & API contract
+## Phase 0: Discovery & API contract ✅ 🔒
 **Mode:** Sequential
 **Depends on:** none
 **Goal:** Agree API surface and data model used by the UI (field names/types and endpoints).
 
 ### Sequential steps
-1. Inventory backend endpoints and any existing PHASEPLAN.md to discover supported endpoints (e.g., `/apps/:id/version`, `/apps/:id/versions`, `/apps/:id/schedule`, cache endpoints). — UI must target exact endpoints/fields.
-2. Draft a minimal API contract JSON describing changes to `App` (new fields: `registryUrl`, `registryAuth`, `cors`, `lastModified`, `schedule`), plus new endpoints and request/response shapes. — prevents front-end/back-end mismatch.
-3. Add lightweight mock responses or feature flags in the UI for missing endpoints so front-end work can proceed offline.
+- [x] Inventory backend endpoints and any existing PHASEPLAN.md to discover supported endpoints (e.g., `/apps/:id/versions`, `/apps/:id/versions/{versionId}`, `/apps/:id/schedule`, `/apps/:id/shutdown`, `/apps/:id/registry/test`) — confirmed in `src/lib/api.ts` and `docs/api-contracts/deployer-ui-api.json`.
+- [x] Draft a minimal API contract JSON describing changes to `App` (new fields: `registryUrl`, `registryAuth`, `cors`, `lastModified`, `schedule`) and endpoint shapes — see `docs/api-contracts/deployer-ui-api.json`.
+- [x] Add lightweight mock responses or feature flags in the UI for missing endpoints so front-end work can proceed offline — `src/lib/api.ts` includes dev-mode fallbacks via `localStorage['deployer:useDevMocks']`.
 
-**Sync point:** API contract reviewed and accepted, mock endpoints available.
+**Sync point:** API contract reviewed and accepted; dev-mode mocks verified in `src/lib/api.ts`.
 
 ---
 
