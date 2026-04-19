@@ -4,7 +4,7 @@ import { showToast } from '../../lib/toast'
 
 type Props = { open: boolean; onClose: () => void }
 
-type AppType = 'node' | 'python' | 'docker' | 'compose'
+type AppType = 'node' | 'python' | 'docker' | 'compose' | 'npm' | 'pypi' | 'image'
 
 function localBaseURL(): string | null {
   try {
@@ -27,6 +27,9 @@ export default function AddAppModal({ open, onClose }: Props) {
   const [type, setType] = useState<AppType>('node')
   const [entry, setEntry] = useState('main')
   const [image, setImage] = useState('')
+  const [packageName, setPackageName] = useState('')
+  const [packageVersion, setPackageVersion] = useState('')
+  const [registryUrl, setRegistryUrl] = useState('')
   const [composeFile, setComposeFile] = useState('docker-compose.yml')
   const [allowedInput, setAllowedInput] = useState<string>('.')
   const [envBulk, setEnvBulk] = useState('')
@@ -69,6 +72,8 @@ export default function AddAppModal({ open, onClose }: Props) {
     if (t === 'python') return { entry: 'app.py' }
     if (t === 'docker') return { image: '' }
     if (t === 'compose') return { composeFile: 'docker-compose.yml', allowedInput: 'docker-compose.yml' }
+    if (t === 'npm' || t === 'pypi') return { packageName: '', packageVersion: '' }
+    if (t === 'image') return { image: '' }
     return {}
   }
 
@@ -78,6 +83,8 @@ export default function AddAppModal({ open, onClose }: Props) {
     if (d.image !== undefined) setImage(d.image)
     if (d.composeFile) setComposeFile(d.composeFile)
     if (d.allowedInput) setAllowedInput(d.allowedInput)
+    if (d.packageName !== undefined) setPackageName(d.packageName)
+    if (d.packageVersion !== undefined) setPackageVersion(d.packageVersion)
   }
 
   async function submit() {
@@ -86,14 +93,20 @@ export default function AddAppModal({ open, onClose }: Props) {
     if (!validateAllowed(allowedDeployPaths)) { setError('Invalid allowed deploy paths'); return }
     if (type === 'node' && !entry.trim()) { setError('Entry is required for node') ; return }
     if (type === 'python' && !entry.trim()) { setError('Entry is required for python') ; return }
-    if (type === 'docker' && !image.trim()) { setError('Image is required for docker') ; return }
+    if ((type === 'docker' || type === 'image') && !image.trim()) { setError('Image is required for docker/image') ; return }
     if (type === 'compose' && !composeFile.trim()) { setError('Compose file required') ; return }
+    if ((type === 'npm' || type === 'pypi') && !packageName.trim()) { setError('Package name is required for npm/pypi') ; return }
 
     const body: any = { name: name.trim(), type, allowedDeployPaths }
     if (Object.keys(envPreview).length) body.env = envPreview
     if (type === 'node' || type === 'python') body.entry = entry.trim()
-    if (type === 'docker') body.image = image.trim()
+    if (type === 'docker' || type === 'image') body.image = image.trim()
     if (type === 'compose') body.composeFile = composeFile.trim()
+    if (type === 'npm' || type === 'pypi') {
+      body.packageName = packageName.trim()
+      if (packageVersion.trim()) body.packageVersion = packageVersion.trim()
+    }
+    if (registryUrl.trim()) body.registryUrl = registryUrl.trim()
 
     const base = localBaseURL()
     if (!base) { setError('No active deployer configured'); return }
@@ -149,6 +162,9 @@ export default function AddAppModal({ open, onClose }: Props) {
               <option value="python">python</option>
               <option value="docker">docker</option>
               <option value="compose">compose</option>
+              <option value="npm">npm</option>
+              <option value="pypi">pypi</option>
+              <option value="image">image</option>
             </select>
           </label>
         </div>
@@ -164,6 +180,23 @@ export default function AddAppModal({ open, onClose }: Props) {
             <label className="block">Image<input className="w-full" value={image} onChange={e=>setImage(e.target.value)} placeholder="nginx:latest" /></label>
           </div>
         )}
+
+        {type === 'image' && (
+          <div>
+            <label className="block">Image<input className="w-full" value={image} onChange={e=>setImage(e.target.value)} placeholder="registry.example.com/my-image:tag" /></label>
+          </div>
+        )}
+
+        {(type === 'npm' || type === 'pypi') && (
+          <div>
+            <label className="block">Package name<input className="w-full" value={packageName} onChange={e=>setPackageName(e.target.value)} placeholder="package/name" /></label>
+            <label className="block text-sm text-[color:var(--muted)]">Version constraint (optional)<input className="w-full" value={packageVersion} onChange={e=>setPackageVersion(e.target.value)} placeholder=">=1.0.0" /></label>
+          </div>
+        )}
+
+        <div>
+          <label className="block">Registry URL (optional)<input className="w-full" value={registryUrl} onChange={e=>setRegistryUrl(e.target.value)} placeholder="https://registry.example.com" /></label>
+        </div>
 
         {type === 'compose' && (
           <div>

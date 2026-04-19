@@ -135,3 +135,26 @@ Where to get help
 If you see unexpected behaviour, open an issue with reproduction steps and any relevant browser console logs.
 Contributions are welcome — see CONTRIBUTING.md for the preferred workflow.
 
+---
+
+Recent additions (phases 0–5)
+-----------------------------
+
+- New app types: `npm`, `pypi`, `image` (in addition to existing `node`, `python`, `docker`, `compose`).
+- Per-app registry support and a registry credential test flow (`AppRegistryModal`).
+- CORS controls per-app (toggle + allowed origins) in the Edit Config modal.
+- Versions modal (`AppVersionsModal`) to view upstream and historical versions, with a "Refresh upstream metadata" action and an "Update to latest" action.
+- Scheduler UI to configure cron-like schedules and an immediate "Shutdown now" action.
+
+Developer tips
+--------------
+
+- To develop the UI without a running deployer, enable dev-mode mocks in the browser console:
+
+```js
+localStorage.setItem('deployer:useDevMocks', '1')
+```
+
+With that flag set, the typed API wrappers in `src/lib/api.ts` return lightweight mock responses for versions, scheduling, shutdown and registry tests.
+
+

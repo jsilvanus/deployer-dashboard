@@ -17,7 +17,7 @@ export async function apiGet(baseURL: string, path: string, token?: string) {
 export async function checkHealth(baseURL: string, token?: string) {
   return apiGet(baseURL, '/health', token)
 }
-import { ApiError, App, Deployment, LogParams, Metrics } from './types'
+import { ApiError, App, Deployment, LogParams, Metrics, AppVersion, RegistryAuth, ScheduleConfig, ServerResponse } from './types'
 
 const ACTIVE_KEY = 'deployer:active'
 const TOKEN_KEY = 'deployer:token'
@@ -204,6 +204,83 @@ export async function putConfigEnv(body: Record<string,string>, signal?: AbortSi
 
 export async function postSetupSelfUpdate(signal?: AbortSignal) {
   return request('/setup/self-update', { method: 'POST' }, signal)
+}
+
+// -----------------------------------------------------------------------------
+// New API wrappers for Phase 1 (typed): versions, scheduling, shutdown, registry test
+// These will fall back to lightweight dev-mode mocks when the flag
+// `localStorage['deployer:useDevMocks'] === '1'` is set or when the real request
+// fails (to allow offline UI work). See docs/API_CONTRACT.md for assumptions.
+// -----------------------------------------------------------------------------
+
+function useDevMocks(): boolean {
+  try {
+    return typeof window !== 'undefined' && localStorage.getItem('deployer:useDevMocks') === '1'
+  } catch (e) {
+    return false
+  }
+}
+
+export async function getAppVersions(appId: string, signal?: AbortSignal): Promise<AppVersion[]> {
+  try {
+    return await request(`/apps/${encodeURIComponent(appId)}/versions`, { method: 'GET' }, signal) as AppVersion[]
+  } catch (err) {
+    if (useDevMocks()) {
+      const now = new Date().toISOString()
+      const mock: AppVersion[] = [
+        { id: 'v-1', appId, version: '1.0.0', createdAt: now, notes: 'Initial (mock)' },
+        { id: 'v-2', appId, version: '1.1.0', createdAt: now, notes: 'Latest upstream (mock)', upstream: true }
+      ]
+      return mock
+    }
+    throw err
+  }
+}
+
+export async function getAppVersion(appId: string, versionId: string, signal?: AbortSignal): Promise<AppVersion> {
+  try {
+    return await request(`/apps/${encodeURIComponent(appId)}/versions/${encodeURIComponent(versionId)}`, { method: 'GET' }, signal) as AppVersion
+  } catch (err) {
+    if (useDevMocks()) {
+      return { id: versionId, appId, version: versionId, createdAt: new Date().toISOString(), notes: 'mocked version' }
+    }
+    throw err
+  }
+}
+
+export async function postAppSchedule(appId: string, body: ScheduleConfig, signal?: AbortSignal): Promise<void | ServerResponse> {
+  try {
+    return await request(`/apps/${encodeURIComponent(appId)}/schedule`, { method: 'POST', body }, signal) as Promise<void | ServerResponse>
+  } catch (err) {
+    if (useDevMocks()) {
+      return { ok: true, message: 'Mock schedule accepted' }
+    }
+    throw err
+  }
+}
+
+export async function postAppShutdown(appId: string, signal?: AbortSignal): Promise<void | ServerResponse> {
+  try {
+    return await request(`/apps/${encodeURIComponent(appId)}/shutdown`, { method: 'POST' }, signal) as Promise<void | ServerResponse>
+  } catch (err) {
+    if (useDevMocks()) {
+      return { ok: true, message: 'Mock shutdown triggered' }
+    }
+    throw err
+  }
+}
+
+export async function postAppRegistryTest(appId: string, body: { registryUrl: string; credentials: RegistryAuth }, signal?: AbortSignal): Promise<{ ok: boolean; message?: string }> {
+  try {
+    return await request(`/apps/${encodeURIComponent(appId)}/registry/test`, { method: 'POST', body }, signal) as Promise<{ ok: boolean; message?: string }>
+  } catch (err) {
+    if (useDevMocks()) {
+      // Simple heuristics for mock responses
+      if (body.registryUrl && body.credentials) return { ok: true, message: 'Mock: registry reachable' }
+      return { ok: false, message: 'Mock: missing registry or credentials' }
+    }
+    throw err
+  }
 }
 
 export { ApiError }

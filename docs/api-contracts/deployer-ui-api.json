@@ -1,0 +1,101 @@
+{
+  "version": "0.1.0",
+  "description": "Minimal API contract for Deployer UI Phase 0 → Phase 1",
+  "schemas": {
+    "App": {
+      "type": "object",
+      "properties": {
+        "id": {"type":"string"},
+        "name": {"type":"string"},
+        "type": {"type":"string"},
+        "image": {"type":"string"},
+        "version": {"type":"string"},
+        "status": {"type":"string"},
+        "registryUrl": {"type":"string"},
+        "registryAuth": {"$ref":"#/schemas/RegistryAuth"},
+        "cors": {"$ref":"#/schemas/CorsConfig"},
+        "lastModified": {"type":"string","format":"date-time"},
+        "schedule": {"$ref":"#/schemas/ScheduleConfig"}
+      }
+    },
+    "RegistryAuth": {
+      "type": "object",
+      "properties": {
+        "type": {"type":"string"},
+        "token": {"type":"string"},
+        "username": {"type":"string"},
+        "password": {"type":"string"}
+      }
+    },
+    "CorsConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type":"boolean"},
+        "allowedOrigins": {"type":"array","items":{"type":"string"}},
+        "allowCredentials": {"type":"boolean"}
+      }
+    },
+    "ScheduleConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type":"boolean"},
+        "cron": {"type":"string"},
+        "timezone": {"type":"string"},
+        "nextRun": {"type":"string","format":"date-time"}
+      }
+    },
+    "AppVersion": {
+      "type": "object",
+      "properties": {
+        "id": {"type":"string"},
+        "appId": {"type":"string"},
+        "version": {"type":"string"},
+        "createdAt": {"type":"string","format":"date-time"},
+        "notes": {"type":"string"},
+        "upstream": {"type":"boolean"}
+      }
+    },
+    "ServerResponse": {
+      "type": "object",
+      "properties": {
+        "ok": {"type":"boolean"},
+        "message": {"type":"string"}
+      }
+    }
+  },
+  "endpoints": {
+    "getAppVersions": {
+      "method": "GET",
+      "path": "/apps/{appId}/versions",
+      "response": {"$ref":"#/schemas/AppVersion","isArray": true}
+    },
+    "getAppVersion": {
+      "method": "GET",
+      "path": "/apps/{appId}/versions/{versionId}",
+      "response": {"$ref":"#/schemas/AppVersion"}
+    },
+    "postAppSchedule": {
+      "method": "POST",
+      "path": "/apps/{appId}/schedule",
+      "request": {"$ref":"#/schemas/ScheduleConfig"},
+      "response": {"$ref":"#/schemas/ServerResponse"}
+    },
+    "postAppShutdown": {
+      "method": "POST",
+      "path": "/apps/{appId}/shutdown",
+      "response": {"$ref":"#/schemas/ServerResponse"}
+    },
+    "postAppRegistryTest": {
+      "method": "POST",
+      "path": "/apps/{appId}/registry/test",
+      "request": {
+        "type": "object",
+        "properties": {
+          "registryUrl": {"type":"string"},
+          "credentials": {"$ref":"#/schemas/RegistryAuth"}
+        }
+      },
+      "response": {"$ref":"#/schemas/ServerResponse"}
+    }
+  }
+}
