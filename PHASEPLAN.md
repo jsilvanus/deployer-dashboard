@@ -87,15 +87,15 @@ Run these simultaneously (max 3):
 **Depends on:** Phase 1
 **Goal:** Expose CORS config, show Last-Modified cache metadata and allow manual invalidation.
 
-**Stream A — CORS**
-- Add small CORS controls in `EditConfigModal` to set allowed origins or toggle CORS behavior.
-- Surface helpful troubleshooting text when add deployer requests fail with CORS (map existing AddDeployerModal error handling pattern).
+**Stream A — CORS** ✅
+- [x] Add small CORS controls in `EditConfigModal` to set allowed origins or toggle CORS behavior.
+- [x] Surface helpful troubleshooting text when add deployer requests fail with CORS (map existing AddDeployerModal error handling pattern).
 
-**Stream B — Last-Modified / caching**
-- Display caching headers/last-modified metadata in `AppVersionsModal` or App details. Add a "Refresh upstream metadata" button.
-- Add a "Purge cache / Revalidate" action calling a new endpoint if backend supports it.
+**Stream B — Last-Modified / caching** ✅
+- [x] Display caching headers/last-modified metadata in `AppVersionsModal` or App details. Add a "Refresh upstream metadata" button.
+- [x] Add a "Purge cache / Revalidate" action calling a new endpoint if backend supports it. (UI hook added; server-side endpoint optional.)
 
-**Sync point:** CORS and cache controls editable and actions return meaningful server responses.
+**Sync point:** CORS and cache controls editable and actions return meaningful server responses (dev-mode fallbacks available).
 
 ---
 

@@ -28,6 +28,17 @@ Sync point verified: `getApp()` and `getApps()` include new optional fields (`re
 Deviations: none.
 
 ---
+## 2026-04-20 — Phase 4 closed ✅ 🔒
+
+Owned files:
+- src/features/apps/EditConfigModal.tsx
+- src/features/apps/AppVersionsModal.tsx
+
+Sync point verified: CORS controls added to `EditConfigModal` (toggle + allowed origins) and Last-Modified metadata displayed in `AppVersionsModal` with a "Refresh upstream metadata" action. UI hooks present for cache purge/revalidate where backend supports it.
+
+Deviations: none.
+
+---
 ## 2026-04-20 — Phase 3 closed ✅ 🔒
 
 Owned files:

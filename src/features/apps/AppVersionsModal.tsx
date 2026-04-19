@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Modal from '../../components/ui/Modal'
 import Button from '../../components/ui/Button'
-import { getAppVersions, postUpdate } from '../../lib/api'
+import { getAppVersions, postUpdate, getApp } from '../../lib/api'
+import { showToast } from '../../lib/toast'
 
 export default function AppVersionsModal({ appId, open, onClose }: { appId: string; open: boolean; onClose: () => void }) {
   const [versions, setVersions] = useState<any[]>([])
@@ -16,6 +17,14 @@ export default function AppVersionsModal({ appId, open, onClose }: { appId: stri
     return () => { mounted = false }
   }, [open, appId])
 
+  const [lastModified, setLastModified] = useState<string | null>(null)
+  useEffect(() => {
+    if (!open) return
+    let mounted = true
+    getApp(appId).then(a => { if (mounted) setLastModified((a as any)?.lastModified || null) }).catch(()=>{} )
+    return () => { mounted = false }
+  }, [open, appId])
+
   async function updateLatest() {
     if (!confirm('Update to latest version?')) return
     setUpdating(true)
@@ -25,6 +34,19 @@ export default function AppVersionsModal({ appId, open, onClose }: { appId: stri
     } catch (e) {
       // ignore
     } finally { setUpdating(false) }
+  }
+
+  async function refreshMetadata() {
+    setLoading(true)
+    try {
+      const v = await getAppVersions(appId)
+      setVersions(v)
+      const a = await getApp(appId)
+      setLastModified((a as any)?.lastModified || null)
+      showToast('Upstream metadata refreshed')
+    } catch (e) {
+      showToast('Failed to refresh metadata')
+    } finally { setLoading(false) }
   }
 
   return (
@@ -49,7 +71,9 @@ export default function AppVersionsModal({ appId, open, onClose }: { appId: stri
         </div>
       )}
 
+      <div className="mt-3 text-sm text-[color:var(--muted)]">Last-Modified: {lastModified ?? '—'}</div>
       <div className="mt-4 flex justify-end gap-2">
+        <Button variant="secondary" size="sm" onClick={refreshMetadata}>Refresh upstream metadata</Button>
         <Button variant="secondary" size="sm" onClick={onClose}>Close</Button>
         <Button variant="primary" size="sm" onClick={updateLatest} disabled={updating || versions.length===0}>{updating ? 'Updating...' : 'Update to latest'}</Button>
       </div>

@@ -9,6 +9,8 @@ export default function EditConfigModal({ appId, open, onClose, onSaved }: { app
   const [name, setName] = useState('')
   const [image, setImage] = useState('')
   const [registryOpen, setRegistryOpen] = useState(false)
+  const [corsEnabled, setCorsEnabled] = useState(false)
+  const [allowedOriginsInput, setAllowedOriginsInput] = useState('')
 
   React.useEffect(() => {
     if (!open) return
@@ -17,6 +19,13 @@ export default function EditConfigModal({ appId, open, onClose, onSaved }: { app
       if (!mounted) return
       setName(a.name || '')
       setImage(a.image || '')
+      try {
+        const c = (a as any)?.cors || {}
+        setCorsEnabled(!!c.enabled)
+        setAllowedOriginsInput((c.allowedOrigins || []).join('\n'))
+      } catch (e) {
+        // ignore
+      }
     }).catch(() => {})
     return () => { mounted = false }
   }, [open, appId])
@@ -24,7 +33,8 @@ export default function EditConfigModal({ appId, open, onClose, onSaved }: { app
   async function save() {
     setLoading(true)
     try {
-      const updated = await patchApp(appId, { name, image })
+      const cors = { enabled: corsEnabled, allowedOrigins: allowedOriginsInput.split(/\r?\n+/).map(s=>s.trim()).filter(Boolean) }
+      const updated = await patchApp(appId, { name, image, cors })
       onSaved?.(updated)
       onClose()
     } catch (e) {
@@ -51,6 +61,15 @@ export default function EditConfigModal({ appId, open, onClose, onSaved }: { app
           <Button variant="secondary" size="sm" onClick={()=>setRegistryOpen(true)}>Manage registry</Button>
           <div className="text-sm text-[color:var(--muted)] self-center">Configure per-app registry & test credentials</div>
         </div>
+      </div>
+      <div className="mt-3">
+        <label className="block text-xs text-[color:var(--muted)]">CORS</label>
+        <div className="flex items-center gap-2 mb-2">
+          <input id="cors-enabled" type="checkbox" checked={corsEnabled} onChange={e=>setCorsEnabled(e.target.checked)} />
+          <label htmlFor="cors-enabled" className="text-sm">Enable CORS</label>
+        </div>
+        <label className="block text-xs text-[color:var(--muted)]">Allowed origins (one per line)</label>
+        <textarea className="w-full border rounded px-2 py-1" rows={3} value={allowedOriginsInput} onChange={e=>setAllowedOriginsInput(e.target.value)} />
       </div>
       <div className="mt-4 flex justify-end gap-2">
         <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
