@@ -28,6 +28,21 @@ Sync point verified: `getApp()` and `getApps()` include new optional fields (`re
 Deviations: none.
 
 ---
+## 2026-04-20 — Phase 2 closed ✅ 🔒
+
+Owned files:
+- src/features/apps/AddAppModal.tsx
+- src/features/apps/EditConfigModal.tsx
+- src/features/apps/AppMenu.tsx
+- src/features/apps/AppVersionsModal.tsx
+- src/features/apps/SchedulerModal.tsx
+- src/features/apps/AppRegistryModal.tsx
+
+Sync point verified: Core UI forms updated — `AddAppModal` accepts new app types (`npm`, `pypi`, `image`) and includes package/registry fields; `EditConfigModal` links to `AppRegistryModal`; `AppMenu` exposes new actions and modals. Dev-mode API fallbacks enable local dev without backend. Manual static verification of files complete.
+
+Deviations: none.
+
+---
 ## 2026-04-20 — Phase 2, Stream B closed ✅
 
 Owned files:

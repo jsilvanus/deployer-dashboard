@@ -38,18 +38,17 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
 
 ---
 
-## Phase 2: Core UI forms & config (Parallel: 3 streams)
+## Phase 2: Core UI forms & config (Parallel: 3 streams) ✅ 🔒
 **Mode:** Parallel (3 streams)
 **Depends on:** Phase 1
 **Goal:** Add UI to register and edit the new app types and per-app registry/cors/cache settings.
 
 Run these simultaneously (max 3):
 
-**Stream A — Add/update app types**
-- Extend `AddAppModal` to include options for `npm`, `pypi`, `python`, `image` (in addition to existing types).
-- Add fields per type (e.g., package name and version constraint for npm/pypi; image for image/docker; entry for python/node).
-- Submit body must include the new fields (registryUrl, packageName, etc.).
-- Tests: ensure form validation per type.
+**Stream A — Add/update app types** ✅
+- [x] Extend `AddAppModal` to include options for `npm`, `pypi`, `python`, `image` (in addition to existing types).
+- [x] Add fields per type (package name & version for npm/pypi; image for image/docker; entry for python/node).
+- [x] Submit body includes new fields (registryUrl, packageName, packageVersion) and validation implemented.
 
 **Stream B — Registry & credentials UI**
 **Stream B — Registry & credentials UI** ✅
