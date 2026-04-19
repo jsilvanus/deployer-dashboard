@@ -1,7 +1,7 @@
 /* @vitest-environment jsdom */
 
 import React, { useEffect } from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 const mockGetDeployment = vi.fn()
@@ -28,6 +28,7 @@ function TestHarness({ responses }: { responses: any[] }) {
 describe('useDeploymentPoll', () => {
   beforeEach(() => {
     vi.useFakeTimers()
+    // timer-heavy tests; rely on global testTimeout in vitest config
     mockGetDeployment.mockReset()
   })
   afterEach(() => {
@@ -43,17 +44,26 @@ describe('useDeploymentPoll', () => {
 
     render(React.createElement(TestHarness, { responses }))
 
-    // initial tick
-    await waitFor(() => expect(screen.getByTestId('out').textContent).not.toBe('idle'))
+    // initial tick - flush microtasks so the mocked promise resolves and state updates
+    await act(async () => {
+      await Promise.resolve()
+      await Promise.resolve()
+    })
     expect(screen.getByTestId('out').textContent).toBe('1/2')
 
     // advance 1s -> second response
-    await vi.advanceTimersByTimeAsync(1000)
-    await waitFor(() => expect(screen.getByTestId('out').textContent).toBe('2/2'))
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000)
+      await Promise.resolve()
+    })
+    expect(screen.getByTestId('out').textContent).toBe('2/2')
 
     // advance 1s -> terminal response
-    await vi.advanceTimersByTimeAsync(1000)
-    await waitFor(() => expect(screen.getByTestId('out').textContent).toBe('2/2'))
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000)
+      await Promise.resolve()
+    })
+    expect(screen.getByTestId('out').textContent).toBe('2/2')
   })
 
   it('backs off to 2s after 60s', async () => {
@@ -65,11 +75,20 @@ describe('useDeploymentPoll', () => {
 
     render(React.createElement(TestHarness, { responses }))
 
-    await waitFor(() => expect(screen.getByTestId('out').textContent).not.toBe('idle'))
+    // flush initial microtasks so the first poll response is applied
+    await act(async () => {
+      await Promise.resolve()
+    })
 
-    await vi.advanceTimersByTimeAsync(60000)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60000)
+      await Promise.resolve()
+    })
 
-    await vi.advanceTimersByTimeAsync(2000)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000)
+      await Promise.resolve()
+    })
     expect(mockGetDeployment).toHaveBeenCalled()
   })
 })
