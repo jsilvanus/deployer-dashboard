@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Base theme tokens */
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+  --bg:  hsl(210 14% 98% / 1);
+  --fg:  hsl(220 10% 12% / 1);
+  --muted: hsl(220 8% 45% / 1);
+  /* Accent exposed as CSS custom property (OKLCH)
+     oklch(0.65 0.18 40) */
+  --accent: oklch(0.65 0.18 40);
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: var(--font-mono);
+    background-color: var(--bg);
+    color: var(--fg);
+  }
+}
+
+/* Example utility using accent */
+.accent-bg {
+  background-color: var(--accent);
+}
