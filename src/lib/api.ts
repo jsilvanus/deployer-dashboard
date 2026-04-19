@@ -1,3 +1,22 @@
+export async function apiGet(baseURL: string, path: string, token?: string) {
+  const url = new URL(path, baseURL).toString()
+  const headers: Record<string, string> = {}
+  if (token) headers['authorization'] = `Bearer ${token}`
+
+  const res = await fetch(url, { headers })
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    const err: any = new Error(`Request failed: ${res.status}`)
+    err.status = res.status
+    err.body = text
+    throw err
+  }
+  return res.json().catch(() => null)
+}
+
+export async function checkHealth(baseURL: string, token?: string) {
+  return apiGet(baseURL, '/health', token)
+}
 import { ApiError, App, Deployment, LogParams, Metrics } from './types'
 
 const ACTIVE_KEY = 'deployer:active'
