@@ -1,10 +1,13 @@
+/* @vitest-environment node */
+
 import React from 'react'
-import { render } from '@testing-library/react'
+import { test, expect } from 'vitest'
+import { renderToString } from 'react-dom/server'
 import AppMenu from '../AppMenu'
 
-test('AppMenu renders and toggles menu button', () => {
+test('AppMenu server-render smoke', () => {
   const mockApp = { id: 'a1', name: 'app1' }
-  const { getByText } = render(<AppMenu app={mockApp} />)
-  // menu button is the ellipsis
-  expect(getByText('⋯')).toBeTruthy()
+  const s = renderToString(<AppMenu app={mockApp} />)
+  // ensure markup contains the menu ellipsis
+  expect(s).toContain('⋯')
 })
