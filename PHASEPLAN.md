@@ -52,8 +52,9 @@ Run these simultaneously (max 3):
 - Tests: ensure form validation per type.
 
 **Stream B — Registry & credentials UI**
-- Extend `EditConfigModal` (or create a new `AppRegistryModal`) to set `registryUrl` and credentials (support token or basic). Provide "test credentials" action that calls `postAppRegistryTest` and surface result.
-- Secure UX: hide credential values by default, require reveal action, offer ephemeral token storage and guidance in UI.
+**Stream B — Registry & credentials UI** ✅
+- [x] Extend `EditConfigModal` (or create a new `AppRegistryModal`) to set `registryUrl` and credentials (support token or basic). Provide "test credentials" action that calls `postAppRegistryTest` and surface result — `AppRegistryModal` created and linked from `EditConfigModal`.
+- [x] Secure UX: hide credential values by default, require reveal action, offer ephemeral token storage and guidance in UI (inputs are masked; token stored only in-session by default).
 
 **Stream C — AppMenu integration & new modals**
 - Add new actions to `AppMenu`: `Versions` (open versions modal), `Scheduler` (open scheduling modal), `Cache` (view/invalidate), `Registry` (open registry modal).

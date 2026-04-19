@@ -28,6 +28,17 @@ Sync point verified: `getApp()` and `getApps()` include new optional fields (`re
 Deviations: none.
 
 ---
+## 2026-04-20 — Phase 2, Stream B closed ✅
+
+Owned files:
+- src/features/apps/EditConfigModal.tsx
+- src/features/apps/AppRegistryModal.tsx
+
+Checkpoint: `AppRegistryModal` created and wired from `EditConfigModal` via a "Manage registry" action. `postAppRegistryTest` is used by the registry modal to validate credentials; inputs are masked by default.
+
+Deviations: none.
+
+---
 
 ## 2026-04-20 — Phase 2, Stream C closed ✅
 

@@ -2,11 +2,13 @@ import React, { useState } from 'react'
 import Modal from '../../components/ui/Modal'
 import Button from '../../components/ui/Button'
 import { patchApp, getApp } from '../../lib/api'
+import AppRegistryModal from './AppRegistryModal'
 
 export default function EditConfigModal({ appId, open, onClose, onSaved }: { appId: string; open: boolean; onClose: () => void; onSaved?: (val: any) => void }) {
   const [loading, setLoading] = useState(false)
   const [name, setName] = useState('')
   const [image, setImage] = useState('')
+  const [registryOpen, setRegistryOpen] = useState(false)
 
   React.useEffect(() => {
     if (!open) return
@@ -43,10 +45,18 @@ export default function EditConfigModal({ appId, open, onClose, onSaved }: { app
           <input value={image} onChange={e=>setImage(e.target.value)} className="w-full border rounded px-2 py-1" />
         </div>
       </div>
+      <div className="mt-3">
+        <label className="block text-xs text-[color:var(--muted)]">Registry</label>
+        <div className="flex gap-2">
+          <Button variant="secondary" size="sm" onClick={()=>setRegistryOpen(true)}>Manage registry</Button>
+          <div className="text-sm text-[color:var(--muted)] self-center">Configure per-app registry & test credentials</div>
+        </div>
+      </div>
       <div className="mt-4 flex justify-end gap-2">
         <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
         <Button variant="primary" size="sm" onClick={save} disabled={loading}>{loading ? 'Saving...' : 'Save'}</Button>
       </div>
+      <AppRegistryModal appId={appId} open={registryOpen} onClose={()=>setRegistryOpen(false)} />
     </Modal>
   )
 }
