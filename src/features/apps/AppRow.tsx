@@ -3,6 +3,7 @@ import MetricTile from '../../components/MetricTile'
 import useQuery from '../../lib/useQuery'
 import { getAppStatus, getAppMetrics } from '../../lib/api'
 import type { App } from '../../lib/types'
+import AppMenu from './AppMenu'
 
 function useIsVisible<T extends HTMLElement>() {
   const ref = useRef<T | null>(null)
@@ -65,7 +66,7 @@ export default function AppRow({ app }: { app: App }) {
       </div>
 
       <div className="ml-auto">
-        <button aria-label="row menu" className="p-2 rounded hover:bg-gray-100 focus:outline-none">⋯</button>
+        <AppMenu app={app} />
       </div>
     </div>
   )

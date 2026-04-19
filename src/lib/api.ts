@@ -195,6 +195,26 @@ export async function getDeployments(appId: string, signal?: AbortSignal): Promi
   return request(`/apps/${encodeURIComponent(appId)}/deployments`, { method: 'GET' }, signal) as Promise<Deployment[]>
 }
 
+export async function getAppEnv(appId: string, signal?: AbortSignal): Promise<Record<string,string>> {
+  return request(`/apps/${encodeURIComponent(appId)}/env`, { method: 'GET' }, signal) as Promise<Record<string,string>>
+}
+
+export async function putAppEnv(appId: string, body: Record<string,string>, signal?: AbortSignal): Promise<Record<string,string>> {
+  return request(`/apps/${encodeURIComponent(appId)}/env`, { method: 'PUT', body }, signal) as Promise<Record<string,string>>
+}
+
+export async function deleteAppEnv(appId: string, key: string, signal?: AbortSignal): Promise<void> {
+  return request(`/apps/${encodeURIComponent(appId)}/env/${encodeURIComponent(key)}`, { method: 'DELETE' }, signal) as Promise<void>
+}
+
+export async function postAppMigrationsRun(appId: string, body: { target?: string } = {}, signal?: AbortSignal): Promise<any> {
+  return request(`/apps/${encodeURIComponent(appId)}/migrations/run`, { method: 'POST', body }, signal)
+}
+
+export async function deleteApp(id: string, signal?: AbortSignal): Promise<void> {
+  return request(`/apps/${encodeURIComponent(id)}`, { method: 'DELETE' }, signal) as Promise<void>
+}
+
 export async function getDeployment(id: string, signal?: AbortSignal): Promise<Deployment> {
   return request(`/deployments/${encodeURIComponent(id)}`, { method: 'GET' }, signal) as Promise<Deployment>
 }
