@@ -1,3 +1,41 @@
+import axios from 'axios'
+
+const client = axios.create({
+  headers: { 'Content-Type': 'application/json' }
+})
+
+export async function postDeploy(appId: string) {
+  const res = await client.post(`/apps/${appId}/deploy`)
+  return res.data
+}
+
+export async function postUpdate(appId: string) {
+  const res = await client.post(`/apps/${appId}/update`)
+  return res.data
+}
+
+export async function postRollback(appId: string) {
+  const res = await client.post(`/apps/${appId}/rollback`)
+  return res.data
+}
+
+export async function getDeployment(deploymentId: string) {
+  const res = await client.get(`/deployments/${deploymentId}`)
+  return res.data
+}
+
+export async function getAppLogs(appId: string) {
+  const res = await client.get(`/apps/${appId}/logs`)
+  return res.data
+}
+
+// streamAppLogs returns an EventSource instance pointed at the server SSE endpoint.
+// Caller should attach event handlers: onmessage, onerror, etc.
+export function streamAppLogs(appId: string) {
+  const url = `/apps/${appId}/logs/stream`
+  const es = new EventSource(url)
+  return es
+}
 export async function apiGet(baseURL: string, path: string, token?: string) {
   const url = new URL(path, baseURL).toString()
   const headers: Record<string, string> = {}
