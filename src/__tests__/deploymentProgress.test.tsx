@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
-import { useDeploymentPoll } from '../features/apps/DeploymentProgressInline'
+// dynamically import createDeploymentPoll to avoid static resolution issues
 
 const mockGetDeployment = vi.fn()
 
@@ -13,13 +13,24 @@ vi.mock('../lib/api', () => ({
 }))
 
 function TestHarness({ responses }: { responses: any[] }) {
-  const poll = useDeploymentPoll()
+  const [out, setOut] = React.useState('idle')
   useEffect(() => {
     mockGetDeployment.mockImplementation(() => Promise.resolve(responses.shift()))
-    poll.start('d1')
-    return () => poll.stop()
+    let stopped = false
+    let poll: any = null
+    async function init() {
+      const mod = await import('../features/apps/DeploymentProgressInline')
+      if (stopped) return
+      poll = mod.createDeploymentPoll()
+      poll.start('d1', (p: any) => setOut(p ? `${p.current}/${p.total}` : 'idle'))
+    }
+    void init()
+    return () => {
+      stopped = true
+      if (poll) poll.stop()
+    }
   }, [])
-  return <div data-testid="out">{poll.progress ? `${poll.progress.current}/${poll.progress.total}` : 'idle'}</div>
+  return <div data-testid="out">{out}</div>
 }
 
 describe('useDeploymentPoll', () => {

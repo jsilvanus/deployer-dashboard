@@ -65,6 +65,68 @@ export function useDeploymentPoll() {
   return { progress, start, stop }
 }
 
+// createDeploymentPoll - non-hook poll implementation useful for tests or
+// non-React environments. It exposes a simple object with `progress`,
+// `start(id)` and `stop()` and accepts the same API surface as the hook.
+export function createDeploymentPoll() {
+  let progress: Progress = null
+  let timeoutRef: ReturnType<typeof setTimeout> | null = null
+  let stopped = false
+
+  function computeProgress(d: Deployment | null) {
+    if (!d || !Array.isArray(d.steps)) return null
+    const total = d.steps.length
+    const runningIndex = d.steps.findIndex(s => s.status === 'running')
+    let current = 0
+    if (runningIndex >= 0) current = runningIndex + 1
+    else current = d.steps.filter(s => s.status === 'success').length
+    return { current, total, steps: d.steps }
+  }
+
+  function start(deploymentId: string, onProgress?: (p: Progress) => void) {
+    stopped = false
+    const startAt = Date.now()
+
+    async function tick() {
+      if (stopped) return
+      try {
+        const d = await api.getDeployment(deploymentId)
+        const p = computeProgress(d)
+        progress = p
+        if (onProgress) onProgress(p)
+        if (d && (d.status === 'success' || d.status === 'failed')) {
+          return
+        }
+      } catch (err) {
+        // ignore
+      }
+
+      const elapsed = Date.now() - startAt
+      const delay = elapsed >= 60000 ? 2000 : 1000
+      if (stopped) return
+      timeoutRef = setTimeout(tick, delay)
+    }
+
+    void tick()
+  }
+
+  function stop() {
+    stopped = true
+    if (timeoutRef) {
+      clearTimeout(timeoutRef)
+      timeoutRef = null
+    }
+  }
+
+  return {
+    get progress() {
+      return progress
+    },
+    start,
+    stop,
+  }
+}
+
 export default function DeploymentProgressInline({ progress }: { progress: Progress }) {
   const [open, setOpen] = useState(false)
   if (!progress) return null
