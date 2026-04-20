@@ -15,6 +15,14 @@ Deviations: none.
 
 ---
 
+## 2026-04-20 — Phase 8 closed ✅ 🔒
+Owned files:
+- src/features/apps/__tests__/appVersionDetail.test.tsx
+
+Sync point verified: Added a local smoke test for `AppVersionDetail` that mocks `getAppVersion` to exercise the modal rendering. Test file added; local test command `npm run test` can run it (repository tests may require `node` environment and dependencies). No production logic changed.
+Deviations: none.
+
+
 ## 2026-04-20 — Phase 1 closed ✅ 🔒
 Owned files:
 - src/lib/types.ts
@@ -78,4 +86,13 @@ Sync point verified: Full test suite run locally: `npm run test` passed (21/21).
 Deviations: Applied test stability fixes and increased `testTimeout` to stabilize timer-heavy tests.
 
 ---
+
+## 2026-04-20 — Phase 7 closed ✅ 🔒
+Owned files:
+- src/features/apps/AppRow.tsx
+- src/features/apps/AppVersionDetail.tsx
+
+Sync point verified: App rows now expose the app `version` inline; clicking the version opens a modal that calls `getAppVersion` (with dev-mode mock fallback) and displays metadata (`version`, `createdAt`, `notes`). Verified by local inspection and by running the repository TypeScript quick-check and the audit script to ensure the endpoint is referenced by UI. No production-facing behavior changed; this is purely a UI addition.
+Deviations: none.
+
 
