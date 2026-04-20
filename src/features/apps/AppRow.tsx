@@ -33,10 +33,11 @@ export default function AppRow({ app }: { app: App }) {
   const status = statusQ.data ?? app.status
   const metrics = metricsQ.data ?? []
   const [verOpen, setVerOpen] = useState(false)
+  const [verOpen, setVerOpen] = useState(false)
 
-  const status24 = metrics.find(m => m.name === 'status-24h')?.values ?? []
-  const cpu1h = metrics.find(m => m.name === 'cpu-1h')?.values ?? []
-  const mem1h = metrics.find(m => m.name === 'mem-1h')?.values ?? []
+  const status24 = (metrics as any[]).find((m: any) => m.name === 'status-24h')?.values ?? []
+  const cpu1h = (metrics as any[]).find((m: any) => m.name === 'cpu-1h')?.values ?? []
+  const mem1h = (metrics as any[]).find((m: any) => m.name === 'mem-1h')?.values ?? []
 
   return (
     <div
@@ -59,7 +60,7 @@ export default function AppRow({ app }: { app: App }) {
       <div className="w-28">
         <div className="inline-flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full" style={{ background: status === 'running' ? '#10B981' : status === 'failed' ? '#EF4444' : '#F59E0B' }} aria-hidden />
-          <span className="text-xs font-mono">{status}</span>
+          <span className="text-xs font-mono">{String(status)}</span>
         </div>
       </div>
 

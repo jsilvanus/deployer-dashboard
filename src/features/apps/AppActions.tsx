@@ -11,21 +11,23 @@ function showErrorWithRetry(message: string, onRetry: () => void) {
 export function useAppActions(appId: string) {
   const poll = useDeploymentPoll()
 
-  const deployMutation = useMutation(() => api.postDeploy(appId), {
+  const deployMutation = useMutation({
+    mutationFn: () => api.postDeploy(appId),
     onSuccess(data: any) {
-      if (data && data.deploymentId) {
-        poll.start(data.deploymentId)
+      if (data && (data as any).deploymentId) {
+        poll.start((data as any).deploymentId)
       }
     },
-    onError(err: any, _vars, context) {
+    onError() {
       showErrorWithRetry('Deploy failed', () => deployMutation.mutate())
     }
   })
 
-  const updateMutation = useMutation(() => api.postUpdate(appId), {
+  const updateMutation = useMutation({
+    mutationFn: () => api.postUpdate(appId),
     onSuccess(data: any) {
-      if (data && data.deploymentId) {
-        poll.start(data.deploymentId)
+      if (data && (data as any).deploymentId) {
+        poll.start((data as any).deploymentId)
       }
     },
     onError() {
@@ -33,10 +35,11 @@ export function useAppActions(appId: string) {
     }
   })
 
-  const rollbackMutation = useMutation(() => api.postRollback(appId), {
+  const rollbackMutation = useMutation({
+    mutationFn: () => api.postRollback(appId),
     onSuccess(data: any) {
-      if (data && data.deploymentId) {
-        poll.start(data.deploymentId)
+      if (data && (data as any).deploymentId) {
+        poll.start((data as any).deploymentId)
       }
     },
     onError() {
@@ -84,19 +87,17 @@ export function useAppLogs(appId: string) {
   }, [appId])
 
   function stream(onMessage: (line: string) => void) {
-    const es = api.streamAppLogs(appId)
-    es.onmessage = (ev) => {
+    const s = api.streamAppLogs(appId, (ev) => {
       try {
         const payload = typeof ev.data === 'string' ? ev.data : JSON.stringify(ev.data)
         onMessage(payload)
       } catch (err) {
         // ignore
       }
-    }
-    es.onerror = () => {
-      // noop; caller can close/es.close()
-    }
-    return es
+    }, () => {
+      // noop
+    })
+    return s
   }
 
   return { logs, isLoading, error, stream }

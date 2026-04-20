@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 if (typeof sessionStorage === 'undefined') {
   // minimal in-memory sessionStorage polyfill for tests
-  ;(global as any).sessionStorage = (() => {
+  ;(globalThis as any).sessionStorage = (() => {
     const store: Record<string,string> = {}
     return {
       getItem: (k: string) => (k in store ? store[k] : null),

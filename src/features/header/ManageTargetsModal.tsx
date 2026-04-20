@@ -25,7 +25,7 @@ export default function ManageTargetsModal({ open, onClose }: Props) {
             <div style={{fontSize:12}}>{d.baseURL}</div>
             <div>
               {editing[d.id] ? (
-                <button onClick={()=>{rename(d.id, editing[d.id]); setEditing({...editing,[d.id]:undefined})}} data-testid={`save-${d.id}`}>Save</button>
+                <button onClick={()=>{rename(d.id, editing[d.id]); setEditing(prev=>{ const copy = {...prev}; delete copy[d.id]; return copy })}} data-testid={`save-${d.id}`}>Save</button>
               ) : (
                 <button onClick={()=>setEditing({...editing,[d.id]:d.label})} data-testid={`edit-${d.id}`}>Rename</button>
               )}

@@ -19,7 +19,7 @@ export async function copyToClipboard(text: string) {
   showToast('Copied to clipboard')
 }
 
-function showToast(msg: string) {
+function showToastFallback(msg: string) {
   try {
     const root = document.createElement('div')
     root.className = 'fixed bottom-6 right-6 bg-black text-white text-sm px-4 py-2 rounded shadow'
