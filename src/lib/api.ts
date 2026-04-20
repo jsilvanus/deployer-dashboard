@@ -51,7 +51,7 @@ async function parseBody(resp: Response) {
   }
 }
 
-async function request<T = unknown>(path: string, opts: RequestInit = {}, signal?: AbortSignal): Promise<T> {
+async function request<T = any>(path: string, opts: RequestInit & { body?: any } = {}, signal?: AbortSignal): Promise<T> {
   const base = getActiveBaseURL()
   if (!base) throw new Error('No active deployer configured')
 
@@ -86,24 +86,24 @@ export async function getHealth(signal?: AbortSignal) {
 }
 
 export async function getApps(signal?: AbortSignal): Promise<App[]> {
-  return request('/apps', { method: 'GET' }, signal)
+  return request<App[]>('/apps', { method: 'GET' }, signal)
 }
 
 export async function getApp(id: string, signal?: AbortSignal): Promise<App> {
-  return request(`/apps/${encodeURIComponent(id)}`, { method: 'GET' }, signal)
+  return request<App>(`/apps/${encodeURIComponent(id)}`, { method: 'GET' }, signal)
 }
 
 export async function patchApp(id: string, body: Partial<App>, signal?: AbortSignal): Promise<App> {
-  return request(`/apps/${encodeURIComponent(id)}`, { method: 'PATCH', body }, signal)
+  return request<App>(`/apps/${encodeURIComponent(id)}`, { method: 'PATCH', body }, signal)
 }
 
 export async function postApp(body: Partial<App>, signal?: AbortSignal): Promise<App> {
-  return request('/apps', { method: 'POST', body }, signal)
+  return request<App>('/apps', { method: 'POST', body }, signal)
 }
 
 export async function postAppDeploy(id: string, action: string, signal?: AbortSignal): Promise<{ deploymentId: string }>
 {
-  return request(`/apps/${encodeURIComponent(id)}/deploy`, { method: 'POST', body: { action } }, signal)
+  return request<{ deploymentId: string }>(`/apps/${encodeURIComponent(id)}/deploy`, { method: 'POST', body: { action } }, signal)
 }
 
 // compatibility wrappers for older code that used postDeploy/postUpdate/postRollback
@@ -124,7 +124,7 @@ export async function getAppStatus(id: string, signal?: AbortSignal) {
 }
 
 export async function getAppMetrics(id: string, signal?: AbortSignal): Promise<Metrics[]> {
-  return request(`/apps/${encodeURIComponent(id)}/metrics`, { method: 'GET' }, signal)
+  return request<Metrics[]>(`/apps/${encodeURIComponent(id)}/metrics`, { method: 'GET' }, signal)
 }
 
 export async function getPrometheusMetrics(signal?: AbortSignal): Promise<string> {
@@ -167,15 +167,15 @@ export function streamAppLogs(id: string, onMessage: (ev: MessageEvent) => void,
 }
 
 export async function getDeployments(appId: string, signal?: AbortSignal): Promise<Deployment[]> {
-  return request(`/apps/${encodeURIComponent(appId)}/deployments`, { method: 'GET' }, signal) as Promise<Deployment[]>
+  return request<Deployment[]>(`/apps/${encodeURIComponent(appId)}/deployments`, { method: 'GET' }, signal)
 }
 
 export async function getAppEnv(appId: string, signal?: AbortSignal): Promise<Record<string,string>> {
-  return request(`/apps/${encodeURIComponent(appId)}/env`, { method: 'GET' }, signal) as Promise<Record<string,string>>
+  return request<Record<string,string>>(`/apps/${encodeURIComponent(appId)}/env`, { method: 'GET' }, signal)
 }
 
 export async function putAppEnv(appId: string, body: Record<string,string>, signal?: AbortSignal): Promise<Record<string,string>> {
-  return request(`/apps/${encodeURIComponent(appId)}/env`, { method: 'PUT', body }, signal) as Promise<Record<string,string>>
+  return request<Record<string,string>>(`/apps/${encodeURIComponent(appId)}/env`, { method: 'PUT', body }, signal)
 }
 
 export async function deleteAppEnv(appId: string, key: string, signal?: AbortSignal): Promise<void> {
@@ -187,11 +187,11 @@ export async function postAppMigrationsRun(appId: string, body: { target?: strin
 }
 
 export async function deleteApp(id: string, signal?: AbortSignal): Promise<void> {
-  return request(`/apps/${encodeURIComponent(id)}`, { method: 'DELETE' }, signal) as Promise<void>
+  return request<void>(`/apps/${encodeURIComponent(id)}`, { method: 'DELETE' }, signal)
 }
 
 export async function getDeployment(id: string, signal?: AbortSignal): Promise<Deployment> {
-  return request(`/deployments/${encodeURIComponent(id)}`, { method: 'GET' }, signal) as Promise<Deployment>
+  return request<Deployment>(`/deployments/${encodeURIComponent(id)}`, { method: 'GET' }, signal)
 }
 
 export async function getConfigEnv(signal?: AbortSignal) {
