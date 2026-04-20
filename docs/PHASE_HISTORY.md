@@ -1,7 +1,39 @@
+
+# Phase History — deployer-dashboard
+
+Archived snapshot of `PHASEPLAN.md` (version):
+
+- Source: `PHASEPLAN.md`
+- Snapshot hash: 4eaeb122d30c133dc1d1ce80cd5ba26eed672919
+- Archived at: 2026-04-20T00:00:00Z
+
+## Summary
+This document summarizes the phase plan that was active when the current
+execution logs were produced. It is intended to be a read-friendly, long-term
+record of what was planned and which phases were completed.
+
+- Phase 0: Discovery & API contract — completed
+- Phase 1: Update types & API client — completed
+- Phase 2: Core UI forms & config (3 streams) — completed
+- Phase 3: Versions view & update flow — completed
+- Phase 4: CORS & Last-Modified caching UI — completed
+- Phase 5: Scheduling & self-shutdown UI — completed
+- Phase 6: Tests, docs, and polish — completed
+
+## Archived PHASEPLAN.md (full)
+
+(The original `PHASEPLAN.md` is included below for reference; this archive
+copies the plan content verbatim so future readers can see the original
+intent.)
+
+---
+
+<!-- BEGIN ARCHIVE -->
+
+## Original PHASEPLAN.md
+
+```
 # Phase Plan: UI integration for new deployer features
-
-_Archived snapshot and summaries are in_ docs/PHASE_HISTORY.md — snapshot `4eaeb122d30c133dc1d1ce80cd5ba26eed672919`.
-
 
 ## Overview
 This plan covers adding UI support for newly-introduced deployer backend features: npm/pypi/python/image app types, per-app registry URL & credentials, CORS support, Last-Modified HTTP caching metadata/actions, an apps/:appId/version view, and self-shutdown / scheduling controls. 7 phases are proposed; the critical path runs through discovery → API client & types → core UI forms → versions view → scheduling. Major constraints: confirm backend endpoints/field names first, avoid storing credentials insecurely, and handle CORS/test flows early.
@@ -161,3 +193,11 @@ Phase 0 → Phase 1 → Phase 2 (core forms + registry) → Phase 3 (versions) �
 ## Next practical steps I can take now (pick one):
 - Finalize API contract and propose exact TypeScript shape for `App` and the new endpoints (I can draft a patch for `src/lib/types.ts` and `src/lib/api.ts`).
 - Scaffold `AppVersionsModal` + basic `getAppVersions()` wrapper and wire a menu action (I can create the new component and a small API mock).
+
+```
+
+<!-- ARCHIVE END -->
+
+
+
+

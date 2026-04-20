@@ -1,8 +1,19 @@
-# Execution Log — deployer-dashboard
+# Execution History — deployer-dashboard
 
-Related PhasePlan: `PHASEPLAN.md`
-PhasePlan-Snapshot: 4eaeb122d30c133dc1d1ce80cd5ba26eed672919
-PhasePlan-ArchivedAt: 2026-04-20T00:00:00Z
+This file archives execution log entries for long-term history and audit.
+It contains snapshots of `EXECUTION_LOG.md` entries with linkage to the
+`PHASEPLAN.md` snapshot that the execution refers to.
+
+- Source: `EXECUTION_LOG.md`
+- Related phaseplan: `PHASEPLAN.md` (snapshot hash: 4eaeb122d30c133dc1d1ce80cd5ba26eed672919)
+- Archived at: 2026-04-20T00:00:00Z
+
+---
+
+## Archived EXECUTION_LOG.md (current snapshot)
+
+```
+# Execution Log — deployer-dashboard
 
 ---
 
@@ -78,4 +89,13 @@ Sync point verified: Full test suite run locally: `npm run test` passed (21/21).
 Deviations: Applied test stability fixes and increased `testTimeout` to stabilize timer-heavy tests.
 
 ---
+
+```
+
+---
+
+Note: This archive is a snapshot of `EXECUTION_LOG.md` at the time the
+PHASEPLAN snapshot (hash 4eaeb122d30c133dc1d1ce80cd5ba26eed672919) was made.
+Future execution entries will be written to the root `EXECUTION_LOG.md` and
+referenced to the active `PHASEPLAN.md` snapshot.
 
