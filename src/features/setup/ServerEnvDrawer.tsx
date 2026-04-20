@@ -3,6 +3,7 @@ import Button from '../../components/ui/Button'
 
 const KNOWN_VARS: { key: string; desc: string; sensitive?: boolean }[] = [
   { key: 'PORT', desc: 'Port the server listens on' },
+  { key: 'DEPLOYER_ADDR', desc: 'Deployer address (domain or IP)' },
   { key: 'ADMIN_TOKEN', desc: 'Admin API token', sensitive: true },
   { key: 'DATABASE_PATH', desc: 'Path to the SQLite database' },
   { key: 'ENCRYPTION_KEY', desc: 'Encryption key for secrets', sensitive: true },
