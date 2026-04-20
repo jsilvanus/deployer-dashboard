@@ -31,10 +31,11 @@ if (realRepoRoot !== cwd) {
   }
 }
 
-// Spawn vite preserving stdio
+// Spawn vite preserving stdio. Prefer local node_modules/.bin/vite to avoid
+// relying on global npx resolution which can behave differently on Windows.
 const args = process.argv.slice(2);
-const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-const child = spawn(cmd, ['vite', ...args], { stdio: 'inherit', shell: false });
+const viteBin = path.join(process.cwd(), 'node_modules', '.bin', process.platform === 'win32' ? 'vite.cmd' : 'vite');
+const child = spawn(viteBin, args, { stdio: 'inherit' });
 
 child.on('exit', (code, signal) => {
   if (signal) process.kill(process.pid, signal);
