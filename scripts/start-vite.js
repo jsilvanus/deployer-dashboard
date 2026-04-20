@@ -35,7 +35,13 @@ if (realRepoRoot !== cwd) {
 // relying on global npx resolution which can behave differently on Windows.
 const args = process.argv.slice(2);
 const viteBin = path.join(process.cwd(), 'node_modules', '.bin', process.platform === 'win32' ? 'vite.cmd' : 'vite');
-const child = spawn(viteBin, args, { stdio: 'inherit' });
+let child;
+if (process.platform === 'win32') {
+  // On Windows the shim in node_modules/.bin is a .cmd file; run it through cmd.exe
+  child = spawn('cmd', ['/c', viteBin, ...args], { stdio: 'inherit' });
+} else {
+  child = spawn(viteBin, args, { stdio: 'inherit' });
+}
 
 child.on('exit', (code, signal) => {
   if (signal) process.kill(process.pid, signal);

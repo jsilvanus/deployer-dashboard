@@ -5,6 +5,7 @@ import { getAppStatus, getAppMetrics } from '../../lib/api'
 import type { App } from '../../lib/types'
 import AppMenu from './AppMenu'
 import { useAppActions } from './AppActions'
+import AppVersionDetail from './AppVersionDetail'
 
 function useIsVisible<T extends HTMLElement>() {
   const ref = useRef<T | null>(null)
@@ -31,6 +32,7 @@ export default function AppRow({ app }: { app: App }) {
 
   const status = statusQ.data ?? app.status
   const metrics = metricsQ.data ?? []
+  const [verOpen, setVerOpen] = useState(false)
 
   const status24 = metrics.find(m => m.name === 'status-24h')?.values ?? []
   const cpu1h = metrics.find(m => m.name === 'cpu-1h')?.values ?? []
@@ -47,6 +49,11 @@ export default function AppRow({ app }: { app: App }) {
       <div className="w-56">
         <div className="text-sm font-semibold">{app.name}</div>
         <div className="text-xs text-[color:var(--muted)] font-mono">{app.type}</div>
+        <div className="text-xs text-[color:var(--muted)] mt-1">
+          Version: {app.version ? (
+            <button className="font-mono text-xs text-indigo-600 hover:underline" onClick={() => setVerOpen(true)}>{app.version}</button>
+          ) : '—'}
+        </div>
       </div>
 
       <div className="w-28">
@@ -72,6 +79,11 @@ export default function AppRow({ app }: { app: App }) {
         <actions.DeploymentProgressInline />
         <AppMenu app={app} />
       </div>
+      {/* Version detail modal trigger */}
+      {app.version && (
+        <AppVersionDetail appId={app.id} versionId={app.version} open={verOpen} onClose={() => setVerOpen(false)} />
+      )}
     </div>
   )
 }
+
