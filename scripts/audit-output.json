@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-04-20T20:56:22.807Z",
+  "results": {
+    "getAppVersions": {
+      "path": "/apps/{appId}/versions",
+      "method": "GET",
+      "matches": [
+        "src/features/apps/AppVersionsModal.tsx",
+        "src/lib/api.ts"
+      ]
+    },
+    "getAppVersion": {
+      "path": "/apps/{appId}/versions/{versionId}",
+      "method": "GET",
+      "matches": [
+        "src/features/apps/AppVersionDetail.tsx",
+        "src/features/apps/AppVersionsModal.tsx",
+        "src/features/apps/__tests__/appVersionDetail.test.tsx",
+        "src/lib/api.ts"
+      ]
+    },
+    "postAppSchedule": {
+      "path": "/apps/{appId}/schedule",
+      "method": "POST",
+      "matches": [
+        "src/features/apps/SchedulerModal.tsx",
+        "src/lib/api.ts"
+      ]
+    },
+    "postAppShutdown": {
+      "path": "/apps/{appId}/shutdown",
+      "method": "POST",
+      "matches": [
+        "src/features/apps/AppMenu.tsx",
+        "src/features/apps/SchedulerModal.tsx",
+        "src/lib/api.ts"
+      ]
+    },
+    "postAppRegistryTest": {
+      "path": "/apps/{appId}/registry/test",
+      "method": "POST",
+      "matches": [
+        "src/features/apps/AppRegistryModal.tsx",
+        "src/lib/api.ts"
+      ]
+    }
+  }
+}
