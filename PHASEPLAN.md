@@ -25,7 +25,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
 
 ---
 
-## Phase 1: Update types & API client
+## Phase 1: Update types & API client ✅ 🔒
 **Mode:** Sequential
 **Depends on:** Phase 0
 **Goal:** Update front-end types and API wrappers to reflect agreed contract.
@@ -71,7 +71,7 @@ Run these simultaneously (max 3):
 
 ---
 
-## Phase 3: Versions view & update flow
+## Phase 3: Versions view & update flow ✅ 🔒
 **Mode:** Sequential
 **Depends on:** Phase 1, Phase 2
 **Goal:** Provide a UI to view current app version and latest upstream version and to trigger updates.
@@ -85,7 +85,7 @@ Run these simultaneously (max 3):
 
 ---
 
-## Phase 4: CORS & Last-Modified caching UI
+## Phase 4: CORS & Last-Modified caching UI ✅ 🔒
 **Mode:** Parallel (2 streams)
 **Depends on:** Phase 1
 **Goal:** Expose CORS config, show Last-Modified cache metadata and allow manual invalidation.
@@ -102,7 +102,7 @@ Run these simultaneously (max 3):
 
 ---
 
-## Phase 5: Scheduling & self-shutdown UI
+## Phase 5: Scheduling & self-shutdown UI ✅ 🔒
 **Mode:** Sequential
 **Depends on:** Phase 1, Phase 2
 **Goal:** Allow users to schedule self-shutdown/restarts and ad-hoc shutdowns from the UI.
@@ -116,7 +116,7 @@ Run these simultaneously (max 3):
 
 ---
 
-## Phase 6: Tests, docs, and polish
+## Phase 6: Tests, docs, and polish ✅ 🔒
 **Mode:** Parallel (up to 3 streams)
 **Depends on:** all previous phases
 **Goal:** Add unit + integration tests, update README/PLAN.md, and finalize UX polish.
