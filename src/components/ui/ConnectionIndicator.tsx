@@ -7,7 +7,8 @@ export default function ConnectionIndicator() {
     let mounted = true
     async function check() {
       try {
-        const res = await fetch('/config/env', { cache: 'no-store' })
+        // Use the health endpoint to determine connectivity
+        const res = await fetch('/health', { cache: 'no-store' })
         if (!mounted) return
         setConnected(res.ok)
       } catch (_) {

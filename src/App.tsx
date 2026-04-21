@@ -24,11 +24,13 @@ export default function App() {
       <header className="flex items-center justify-between px-6 py-3 border-b">
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-bold">Deployer Dashboard</h1>
-          <ConnectionIndicator />
         </div>
 
         <div className="relative">
-          <Button variant="secondary" onClick={() => setMenuOpen(v => !v)}>Setup</Button>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={() => setMenuOpen(v => !v)}>Setup</Button>
+            <ConnectionIndicator />
+          </div>
           {menuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md py-1">
               {deployers.length === 0 ? (
