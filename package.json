@@ -32,7 +32,6 @@
     "vite": "^5.1.7"
   },
   "vitest": {
-    "root": "C:/Users/jsilv/Code/deployer-dashboard",
     "test": {
       "environment": "jsdom",
       "globals": true,

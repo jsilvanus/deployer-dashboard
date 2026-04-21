@@ -68,9 +68,9 @@ export function useDeploymentPoll() {
 // createDeploymentPoll - non-hook poll implementation useful for tests or
 // non-React environments. It exposes a simple object with `progress`,
 // `start(id)` and `stop()` and accepts the same API surface as the hook.
-export function createDeploymentPoll() {
+export function createDeploymentPoll(opts?: { schedule?: (fn: () => void, delay: number) => any; clear?: (id: any) => void }) {
   let progress: Progress = null
-  let timeoutRef: ReturnType<typeof setTimeout> | null = null
+  let timeoutRef: any = null
   let stopped = false
 
   function computeProgress(d: Deployment | null) {
@@ -104,7 +104,11 @@ export function createDeploymentPoll() {
       const elapsed = Date.now() - startAt
       const delay = elapsed >= 60000 ? 2000 : 1000
       if (stopped) return
-      timeoutRef = setTimeout(tick, delay)
+      if (opts?.schedule) {
+        timeoutRef = opts.schedule(tick, delay)
+      } else {
+        timeoutRef = setTimeout(tick, delay)
+      }
     }
 
     void tick()
@@ -112,8 +116,9 @@ export function createDeploymentPoll() {
 
   function stop() {
     stopped = true
-    if (timeoutRef) {
-      clearTimeout(timeoutRef)
+    if (timeoutRef != null) {
+      if (opts?.clear) opts.clear(timeoutRef)
+      else clearTimeout(timeoutRef)
       timeoutRef = null
     }
   }
