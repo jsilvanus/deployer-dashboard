@@ -9,6 +9,7 @@ import TraefikSetupModal from './features/setup/TraefikSetupModal'
 import SelfUpdateModal from './features/setup/SelfUpdateModal'
 import ServerEnvDrawer from './features/setup/ServerEnvDrawer'
 import { useDeployers } from './stores/deployers'
+import { subscribe as subscribeConnection } from './stores/connection'
 
 export default function App() {
   const data = [3, 5, 4, 6, 8, 7, 9]

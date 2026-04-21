@@ -33,7 +33,6 @@ export default function AppRow({ app }: { app: App }) {
   const status = statusQ.data ?? app.status
   const metrics = metricsQ.data ?? []
   const [verOpen, setVerOpen] = useState(false)
-  const [verOpen, setVerOpen] = useState(false)
 
   const status24 = (metrics as any[]).find((m: any) => m.name === 'status-24h')?.values ?? []
   const cpu1h = (metrics as any[]).find((m: any) => m.name === 'cpu-1h')?.values ?? []

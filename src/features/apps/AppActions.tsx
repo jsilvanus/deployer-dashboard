@@ -56,7 +56,7 @@ export function useAppActions(appId: string) {
     deploy: () => deployMutation.mutate(),
     updating: updateMutation.mutate,
     rollback: () => rollbackMutation.mutate(),
-    isDeploying: deployMutation.isLoading || updateMutation.isLoading || rollbackMutation.isLoading,
+    isDeploying: (deployMutation as any).isLoading || (updateMutation as any).isLoading || (rollbackMutation as any).isLoading,
     progress: poll.progress,
     DeploymentProgressInline: (props: { className?: string }) => <DeploymentProgressInline progress={poll.progress} />,
     openLogs,

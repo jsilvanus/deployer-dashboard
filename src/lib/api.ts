@@ -51,7 +51,7 @@ async function parseBody(resp: Response) {
   }
 }
 
-async function request<T = any>(path: string, opts: RequestInit & { body?: any } = {}, signal?: AbortSignal): Promise<T> {
+async function request<T = any>(path: string, opts: Omit<RequestInit, 'body'> & { body?: any } = {}, signal?: AbortSignal): Promise<T> {
   const base = getActiveBaseURL()
   if (!base) throw new Error('No active deployer configured')
 
@@ -179,7 +179,7 @@ export async function putAppEnv(appId: string, body: Record<string,string>, sign
 }
 
 export async function deleteAppEnv(appId: string, key: string, signal?: AbortSignal): Promise<void> {
-  return request(`/apps/${encodeURIComponent(appId)}/env/${encodeURIComponent(key)}`, { method: 'DELETE' }, signal) as Promise<void>
+  return request<void>(`/apps/${encodeURIComponent(appId)}/env/${encodeURIComponent(key)}`, { method: 'DELETE' }, signal)
 }
 
 export async function postAppMigrationsRun(appId: string, body: { target?: string } = {}, signal?: AbortSignal): Promise<any> {
@@ -223,7 +223,7 @@ function useDevMocks(): boolean {
 
 export async function getAppVersions(appId: string, signal?: AbortSignal): Promise<AppVersion[]> {
   try {
-    return await request(`/apps/${encodeURIComponent(appId)}/versions`, { method: 'GET' }, signal) as AppVersion[]
+    return await request<AppVersion[]>(`/apps/${encodeURIComponent(appId)}/versions`, { method: 'GET' }, signal)
   } catch (err) {
     if (useDevMocks()) {
       const now = new Date().toISOString()
@@ -239,7 +239,7 @@ export async function getAppVersions(appId: string, signal?: AbortSignal): Promi
 
 export async function getAppVersion(appId: string, versionId: string, signal?: AbortSignal): Promise<AppVersion> {
   try {
-    return await request(`/apps/${encodeURIComponent(appId)}/versions/${encodeURIComponent(versionId)}`, { method: 'GET' }, signal) as AppVersion
+    return await request<AppVersion>(`/apps/${encodeURIComponent(appId)}/versions/${encodeURIComponent(versionId)}`, { method: 'GET' }, signal)
   } catch (err) {
     if (useDevMocks()) {
       return { id: versionId, appId, version: versionId, createdAt: new Date().toISOString(), notes: 'mocked version' }
@@ -250,7 +250,7 @@ export async function getAppVersion(appId: string, versionId: string, signal?: A
 
 export async function postAppSchedule(appId: string, body: ScheduleConfig, signal?: AbortSignal): Promise<void | ServerResponse> {
   try {
-    return await request(`/apps/${encodeURIComponent(appId)}/schedule`, { method: 'POST', body }, signal) as Promise<void | ServerResponse>
+    return await request<void | ServerResponse>(`/apps/${encodeURIComponent(appId)}/schedule`, { method: 'POST', body }, signal)
   } catch (err) {
     if (useDevMocks()) {
       return { ok: true, message: 'Mock schedule accepted' }
@@ -261,7 +261,7 @@ export async function postAppSchedule(appId: string, body: ScheduleConfig, signa
 
 export async function postAppShutdown(appId: string, signal?: AbortSignal): Promise<void | ServerResponse> {
   try {
-    return await request(`/apps/${encodeURIComponent(appId)}/shutdown`, { method: 'POST' }, signal) as Promise<void | ServerResponse>
+    return await request<void | ServerResponse>(`/apps/${encodeURIComponent(appId)}/shutdown`, { method: 'POST' }, signal)
   } catch (err) {
     if (useDevMocks()) {
       return { ok: true, message: 'Mock shutdown triggered' }
@@ -272,7 +272,7 @@ export async function postAppShutdown(appId: string, signal?: AbortSignal): Prom
 
 export async function postAppRegistryTest(appId: string, body: { registryUrl: string; credentials: RegistryAuth }, signal?: AbortSignal): Promise<{ ok: boolean; message?: string }> {
   try {
-    return await request(`/apps/${encodeURIComponent(appId)}/registry/test`, { method: 'POST', body }, signal) as Promise<{ ok: boolean; message?: string }>
+    return await request<{ ok: boolean; message?: string }>(`/apps/${encodeURIComponent(appId)}/registry/test`, { method: 'POST', body }, signal)
   } catch (err) {
     if (useDevMocks()) {
       // Simple heuristics for mock responses
