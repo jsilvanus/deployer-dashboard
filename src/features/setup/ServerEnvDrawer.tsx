@@ -4,11 +4,7 @@ import Button from '../../components/ui/Button'
 const KNOWN_VARS: { key: string; desc: string; sensitive?: boolean }[] = [
   { key: 'PORT', desc: 'Port the server listens on' },
   { key: 'DEPLOYER_ADDR', desc: 'Deployer address (domain or IP)' },
-  { key: 'ADMIN_TOKEN', desc: 'Admin API token', sensitive: true },
-  { key: 'DATABASE_PATH', desc: 'Path to the SQLite database' },
-  { key: 'ENCRYPTION_KEY', desc: 'Encryption key for secrets', sensitive: true },
-  { key: 'CORS_ORIGIN', desc: 'Allowed CORS origin' },
-  { key: 'LOG_LEVEL', desc: 'Logging level (debug/info/warn/error)' }
+  { key: 'ADMIN_TOKEN', desc: 'Admin API token', sensitive: true }
 ]
 
 function genRandomHex(len = 32) {
@@ -76,11 +72,7 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
     seen.add(k.key)
   }
 
-  // others
-  for (const k of Object.keys(env)) {
-    if (seen.has(k)) continue
-    ordered.push({ key: k, value: env[k] || '', desc: undefined, sensitive: false })
-  }
+  // NOTE: Only show the minimal server config fields listed in KNOWN_VARS.
 
   return (
     <div className="fixed inset-0 z-50 flex">
