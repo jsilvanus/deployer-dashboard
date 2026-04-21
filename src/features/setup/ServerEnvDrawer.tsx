@@ -19,7 +19,7 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [restartRequired, setRestartRequired] = useState(false)
-  const [connected, setConnected] = useState<boolean | null>(null)
+  const [connState, setConnState] = useState<{ lastStatus: boolean | null; lastSuccess: number | null; lastChecked: number | null } | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -32,7 +32,7 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   }, [open])
 
   useEffect(() => {
-    const unsub = subscribeConnection(v => setConnected(v))
+    const unsub = subscribeConnection(v => setConnState(v))
     return unsub
   }, [])
 
@@ -80,7 +80,7 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   }
 
   // If connected, include all server config keys from the fetched env
-  if (connected === true) {
+  if (connState?.lastStatus === true) {
     const extra = Object.keys(env).sort()
     for (const k of extra) {
       if (seen.has(k)) continue
