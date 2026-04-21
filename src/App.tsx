@@ -7,6 +7,7 @@ import MetricTile from './components/MetricTile'
 import TraefikSetupModal from './features/setup/TraefikSetupModal'
 import SelfUpdateModal from './features/setup/SelfUpdateModal'
 import ServerEnvDrawer from './features/setup/ServerEnvDrawer'
+import { useDeployers } from './stores/deployers'
 
 export default function App() {
   const data = [3, 5, 4, 6, 8, 7, 9]
@@ -15,6 +16,7 @@ export default function App() {
   const [traefikOpen, setTraefikOpen] = useState(false)
   const [selfUpdateOpen, setSelfUpdateOpen] = useState(false)
   const [serverDrawerOpen, setServerDrawerOpen] = useState(false)
+  const { deployers } = useDeployers()
 
   return (
     <div className="min-h-screen flex flex-col bg-[color:var(--bg)] text-[color:var(--fg)]">
@@ -27,9 +29,15 @@ export default function App() {
           <Button variant="secondary" onClick={() => setMenuOpen(v => !v)}>Setup</Button>
           {menuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md py-1">
-              <button className="w-full text-left px-3 py-2 hover:bg-gray-50" onClick={() => { setTraefikOpen(true); setMenuOpen(false) }}>Traefik setup</button>
-              <button className="w-full text-left px-3 py-2 hover:bg-gray-50" onClick={() => { setSelfUpdateOpen(true); setMenuOpen(false) }}>Self update</button>
-              <button className="w-full text-left px-3 py-2 hover:bg-gray-50" onClick={() => { setServerDrawerOpen(true); setMenuOpen(false) }}>Server config</button>
+              {deployers.length === 0 ? (
+                <button className="w-full text-left px-3 py-2 hover:bg-gray-50" onClick={() => { setServerDrawerOpen(true); setMenuOpen(false) }}>Server config</button>
+              ) : (
+                <>
+                  <button className="w-full text-left px-3 py-2 hover:bg-gray-50" onClick={() => { setTraefikOpen(true); setMenuOpen(false) }}>Traefik setup</button>
+                  <button className="w-full text-left px-3 py-2 hover:bg-gray-50" onClick={() => { setSelfUpdateOpen(true); setMenuOpen(false) }}>Self update</button>
+                  <button className="w-full text-left px-3 py-2 hover:bg-gray-50" onClick={() => { setServerDrawerOpen(true); setMenuOpen(false) }}>Server config</button>
+                </>
+              )}
             </div>
           )}
         </div>
