@@ -4,6 +4,7 @@ import Pill from './components/ui/Pill'
 import Sparkline from './components/ui/Sparkline'
 import AreaChart from './components/ui/AreaChart'
 import MetricTile from './components/MetricTile'
+import ConnectionIndicator from './components/ui/ConnectionIndicator'
 import TraefikSetupModal from './features/setup/TraefikSetupModal'
 import SelfUpdateModal from './features/setup/SelfUpdateModal'
 import ServerEnvDrawer from './features/setup/ServerEnvDrawer'
@@ -23,6 +24,7 @@ export default function App() {
       <header className="flex items-center justify-between px-6 py-3 border-b">
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-bold">Deployer Dashboard</h1>
+          <ConnectionIndicator />
         </div>
 
         <div className="relative">
