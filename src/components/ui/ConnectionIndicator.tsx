@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { setConnected as setGlobalConnected } from '../../stores/connection'
 
 export default function ConnectionIndicator() {
-  const [connected, setConnected] = useState<boolean | null>(null)
+  const [connected, setLocalConnected] = useState<boolean | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -10,10 +11,13 @@ export default function ConnectionIndicator() {
         // Use the health endpoint to determine connectivity
         const res = await fetch('/health', { cache: 'no-store' })
         if (!mounted) return
-        setConnected(res.ok)
+        setLocalConnected(res.ok)
+        // also update shared store
+        setGlobalConnected(res.ok)
       } catch (_) {
         if (!mounted) return
-        setConnected(false)
+        setLocalConnected(false)
+        setGlobalConnected(false)
       }
     }
 

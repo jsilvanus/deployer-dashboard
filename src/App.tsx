@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from './components/ui/Button'
 import Pill from './components/ui/Pill'
 import Sparkline from './components/ui/Sparkline'
@@ -9,6 +9,7 @@ import TraefikSetupModal from './features/setup/TraefikSetupModal'
 import SelfUpdateModal from './features/setup/SelfUpdateModal'
 import ServerEnvDrawer from './features/setup/ServerEnvDrawer'
 import { useDeployers } from './stores/deployers'
+import { subscribe as subscribeConnection } from './stores/connection'
 
 export default function App() {
   const data = [3, 5, 4, 6, 8, 7, 9]
@@ -18,6 +19,11 @@ export default function App() {
   const [selfUpdateOpen, setSelfUpdateOpen] = useState(false)
   const [serverDrawerOpen, setServerDrawerOpen] = useState(false)
   const { deployers } = useDeployers()
+  const [connected, setConnected] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    return subscribeConnection(v => setConnected(v))
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col bg-[color:var(--bg)] text-[color:var(--fg)]">
@@ -33,7 +39,7 @@ export default function App() {
           </div>
           {menuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md py-1">
-              {deployers.length === 0 ? (
+              {deployers.length === 0 && connected !== true ? (
                 <button className="w-full text-left px-3 py-2 hover:bg-gray-50" onClick={() => { setServerDrawerOpen(true); setMenuOpen(false) }}>Server config</button>
               ) : (
                 <>

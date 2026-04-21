@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { subscribe as subscribeConnection } from '../../stores/connection'
 import Button from '../../components/ui/Button'
 
 const KNOWN_VARS: { key: string; desc: string; sensitive?: boolean }[] = [
@@ -18,6 +19,7 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [restartRequired, setRestartRequired] = useState(false)
+  const [connected, setConnected] = useState<boolean | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -28,6 +30,11 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
       setEnv(data || {})
     }).catch(()=> setEnv({})).finally(()=> setLoading(false))
   }, [open])
+
+  useEffect(() => {
+    const unsub = subscribeConnection(v => setConnected(v))
+    return unsub
+  }, [])
 
   function setVar(k: string, v: string) {
     setEnv(prev => ({ ...prev, [k]: v }))
@@ -72,7 +79,15 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
     seen.add(k.key)
   }
 
-  // NOTE: Only show the minimal server config fields listed in KNOWN_VARS.
+  // If connected, include all server config keys from the fetched env
+  if (connected === true) {
+    const extra = Object.keys(env).sort()
+    for (const k of extra) {
+      if (seen.has(k)) continue
+      ordered.push({ key: k, value: env[k] || '', desc: undefined, sensitive: false })
+      seen.add(k)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex">
