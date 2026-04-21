@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import create from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export type DeployerMeta = {
@@ -27,7 +27,7 @@ type State = {
 
 const STORAGE_KEY = 'deployer:targets'
 
-export const useDeployers = create<State>(
+export const useDeployers = create<State>()(
   persist(
     (set, get) => ({
       deployers: [],

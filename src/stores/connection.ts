@@ -10,7 +10,7 @@ const subscribers = new Set<(s: ConnectionState) => void>()
 export function subscribe(fn: (s: ConnectionState) => void) {
   subscribers.add(fn)
   try { fn(state) } catch (_) {}
-  return () => subscribers.delete(fn)
+  return () => { subscribers.delete(fn); }
 }
 
 export function setStatus(ok: boolean) {
