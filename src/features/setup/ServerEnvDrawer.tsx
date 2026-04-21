@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { subscribe as subscribeConnection } from '../../stores/connection'
 import Button from '../../components/ui/Button'
+import { getConfigEnv, putConfigEnv } from '../../lib/api'
 
 const KNOWN_VARS: { key: string; desc: string; sensitive?: boolean }[] = [
   { key: 'PORT', desc: 'Port the server listens on' },
@@ -20,16 +21,39 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   const [saving, setSaving] = useState(false)
   const [restartRequired, setRestartRequired] = useState(false)
   const [connState, setConnState] = useState<{ lastStatus: boolean | null; lastSuccess: number | null; lastChecked: number | null } | null>(null)
+  const [useRemote, setUseRemote] = useState(true)
 
   useEffect(() => {
     if (!open) return
     setLoading(true)
-    fetch('/config/env').then(async r => {
-      if (!r.ok) return setEnv({})
-      const data = await r.json().catch(()=> ({}))
-      setEnv(data || {})
-    }).catch(()=> setEnv({})).finally(()=> setLoading(false))
-  }, [open])
+    ;(async () => {
+      try {
+        if (useRemote) {
+          const data = await getConfigEnv()
+          setEnv(data || {})
+        } else {
+          const r = await fetch('/config/env', { cache: 'no-store' })
+          if (!r.ok) {
+            setEnv({})
+          } else {
+            const data = await r.json().catch(()=> ({}))
+            setEnv(data || {})
+          }
+        }
+      } catch (err) {
+        // fallback: attempt same-origin
+        try {
+          const r = await fetch('/config/env', { cache: 'no-store' })
+          if (!r.ok) setEnv({})
+          else setEnv(await r.json().catch(()=> ({})) || {})
+        } catch (e) {
+          setEnv({})
+        }
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [open, useRemote])
 
   useEffect(() => {
     const unsub = subscribeConnection(v => setConnState(v))
@@ -47,10 +71,15 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   async function handleSave() {
     setSaving(true)
     try {
-      const res = await fetch('/config/env', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(env) })
-      if (!res.ok) return
-      const data = await res.json().catch(()=>null)
-      setRestartRequired(!!(data && data.restartRequired))
+      if (useRemote) {
+        const data = await putConfigEnv(env)
+        setRestartRequired(!!(data && (data as any).restartRequired))
+      } else {
+        const res = await fetch('/config/env', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(env) })
+        if (!res.ok) return
+        const data = await res.json().catch(()=>null)
+        setRestartRequired(!!(data && data.restartRequired))
+      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -94,9 +123,15 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
       <div className="ml-auto w-[520px] h-full bg-white shadow-lg p-6 overflow-auto">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Server Config</h3>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={onClose}>Close</Button>
-            <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
+          <div className="flex gap-3 items-center">
+            <label className="text-sm flex items-center gap-2">
+              <input type="checkbox" checked={useRemote} onChange={e => setUseRemote(e.target.checked)} />
+              <span>Use remote API</span>
+            </label>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={onClose}>Close</Button>
+              <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
+            </div>
           </div>
         </div>
 
