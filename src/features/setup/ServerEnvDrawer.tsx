@@ -21,7 +21,16 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
   const [saving, setSaving] = useState(false)
   const [restartRequired, setRestartRequired] = useState(false)
   const [connState, setConnState] = useState<{ lastStatus: boolean | null; lastSuccess: number | null; lastChecked: number | null } | null>(null)
-  const [useRemote, setUseRemote] = useState(true)
+  const [useRemote, setUseRemote] = useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem('deployer:active')
+      if (!v) return false
+      const parsed = JSON.parse(v)
+      return !!parsed?.baseURL
+    } catch (e) {
+      return false
+    }
+  })
 
   useEffect(() => {
     if (!open) return
@@ -104,6 +113,8 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
 
   // known first
   for (const k of KNOWN_VARS) {
+    // hide DEPLOYER_ADDR when using same-origin (it's redundant)
+    if (!useRemote && k.key === 'DEPLOYER_ADDR') continue
     ordered.push({ key: k.key, value: env[k.key] || '', desc: k.desc, sensitive: !!k.sensitive })
     seen.add(k.key)
   }
@@ -124,10 +135,23 @@ export default function ServerEnvDrawer({ open, onClose, onRestartRequested }: {
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Server Config</h3>
           <div className="flex gap-3 items-center">
-            <label className="text-sm flex items-center gap-2">
-              <input type="checkbox" checked={useRemote} onChange={e => setUseRemote(e.target.checked)} />
-              <span>Use remote API</span>
-            </label>
+            <div className="text-sm flex items-center gap-3">
+              <span className="font-medium">Deployer host:</span>
+              <div className="inline-flex items-center bg-gray-100 rounded-full p-1">
+                <button
+                  className={`px-3 py-1 rounded-full ${!useRemote ? 'bg-white shadow' : 'text-gray-500'}`}
+                  onClick={() => setUseRemote(false)}
+                >
+                  same-origin
+                </button>
+                <button
+                  className={`px-3 py-1 rounded-full ${useRemote ? 'bg-white shadow' : 'text-gray-500'}`}
+                  onClick={() => setUseRemote(true)}
+                >
+                  remote
+                </button>
+              </div>
+            </div>
             <div className="flex gap-2">
               <Button variant="secondary" onClick={onClose}>Close</Button>
               <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
